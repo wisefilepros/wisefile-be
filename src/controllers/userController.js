@@ -6,7 +6,7 @@ export const getAllUsers = (req, res) => {
 };
 
 export const getUserById = (req, res) => {
-  const user = fakeDb.users.find((u) => u.id === parseInt(req.params.id));
+  const user = fakeDb.users.find((u) => u._id === req.params.id);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
