@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
+import userRoutes from './routes/user.js';
 
 const app = express();
 
@@ -19,6 +20,9 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.status(200).send('WiseFile backend is running locally with fake DB.');
 });
+
+// User Routes
+app.use('/api/users', userRoutes);
 
 // Start server without Mongo
 app.listen(config.port, () => {
