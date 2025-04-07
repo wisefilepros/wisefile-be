@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# Env files
+.env
+
+# Logs
+logs
+*.log
+
+# Optional OS/filesystem junk
+.DS_Store
+
+# AWS SDK credential file (if present locally)
+.aws/
