@@ -1,4 +1,4 @@
-import { fakeDb } from '../db.js';
+import { fakeDb } from '../db/fakeDb.js';
 
 export const getAllUsers = (req, res) => {
   const users = fakeDb.users;
