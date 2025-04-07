@@ -8,7 +8,7 @@ export const baseSchemaOptions = {
   toJSON: {
     virtuals: true,
     versionKey: false,
-    transform: function (doc, ret) {
+    transform: (doc, ret) => {
       ret.id = ret._id;
       delete ret._id;
     },
@@ -18,6 +18,12 @@ export const baseSchemaOptions = {
   },
 };
 
+/**
+ * Creates a Mongoose schema using base defaults
+ * @param {Object} definition - schema fields
+ * @param {Object} options - any custom schema options
+ * @returns {mongoose.Schema}
+ */
 export const createSchema = (definition, options = {}) => {
   return new mongoose.Schema(definition, {
     ...baseSchemaOptions,
