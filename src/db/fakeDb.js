@@ -11,6 +11,8 @@ const db = {
   fees: [],
   invoices: [],
   activitylogs: [],
+  passwords: [],
+  refresh_tokens: [],
 };
 
 export const fakeDb = {
