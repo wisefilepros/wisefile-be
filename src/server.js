@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import userRoutes from './routes/users.js';
 import authRoutes from './routes/authRoutes.js';
+import passwordRoutes from './routes/passwordRoutes.js';
 
 const app = express();
 
@@ -24,6 +25,9 @@ app.get('/', (req, res) => {
 
 // Auth Routes
 app.use('/api/auth', authRoutes);
+
+// Password Routes
+app.use('/api/passwords', passwordRoutes);
 
 // User Routes
 app.use('/api/users', userRoutes);
