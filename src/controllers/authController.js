@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { createAccessToken, createRefreshToken } from '../utils/authTokens.js';
 import { db } from '../db/index.js';
@@ -65,5 +66,57 @@ export const loginUser = async (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const stored = await db.getRefreshTokenByUserId(decoded._id);
+    if (!stored || stored.token !== token) return res.sendStatus(403);
+
+    const user = await db.getUserById(decoded._id);
+    if (!user || !user.is_active) return res.sendStatus(403);
+
+    // Generate new tokens
+    const newAccessToken = createAccessToken(user);
+    const newRefreshToken = createRefreshToken(user);
+
+    // Update stored refresh token
+    await db.updateRefreshToken(user._id, {
+      token: newRefreshToken,
+      updated_at: new Date(),
+    });
+
+    // Set cookies
+    res
+      .cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+        maxAge: 60 * 60 * 1000, // 1 hour
+      })
+      .cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+      .status(200)
+      .json({
+        message: 'Token refreshed',
+        user: {
+          _id: user._id,
+          full_name: user.full_name,
+          role: user.role,
+          client_id: user.client_id,
+        },
+      });
+  } catch (err) {
+    console.error('Refresh error:', err);
+    return res.sendStatus(403);
   }
 };
