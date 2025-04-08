@@ -120,3 +120,29 @@ export const refreshToken = async (req, res) => {
     return res.sendStatus(403);
   }
 };
+
+export const logoutUser = async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (!token) return res.sendStatus(204); // No content, no cookie = already logged out
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    await db.deleteRefreshToken(decoded._id); // delete from DB or fakeDb
+
+    res
+      .clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+      })
+      .clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+      })
+      .sendStatus(204); // success, no content
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.sendStatus(403); // token invalid
+  }
+};
