@@ -487,6 +487,9 @@ export const fakeDb = {
     db.passwords.splice(index, 1);
     return true;
   },
+  getPasswordByUserId: (user_id) => {
+    return db.passwords.find((p) => p.user_id === user_id);
+  },
 
   // REFRESH_TOKEN
   refresh_tokens: db.refresh_tokens,

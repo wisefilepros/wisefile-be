@@ -16,6 +16,7 @@ export const getPasswordByUserId = (userId) =>
   Password.findOne({ user_id: userId });
 export const updatePassword = (id, updates) =>
   Password.findByIdAndUpdate(id, updates, { new: true });
+export const deletePassword = (id) => Password.findByIdAndDelete(id);
 
 // RefreshToken model operations
 export const createRefreshToken = (item) => RefreshToken.create(item);
