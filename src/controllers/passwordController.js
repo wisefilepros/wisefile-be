@@ -24,3 +24,34 @@ export const createPassword = async (req, res) => {
 
   res.status(201).json({ message: 'Password set successfully.' });
 };
+
+export const resetPassword = async (req, res) => {
+  const { user_id, new_password } = req.body;
+
+  if (!user_id || !new_password) {
+    return res
+      .status(400)
+      .json({ message: 'User ID and new password are required.' });
+  }
+
+  const user = await db.getUserById(user_id);
+  if (!user) return res.status(404).json({ message: 'User not found.' });
+
+  // Prevent resetting password for other roles unless you're admin or client
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ message: 'Not authorized to reset passwords.' });
+  }
+
+  const hash = await bcrypt.hash(new_password, 10);
+  const existing = await db.getPasswordByUserId(user_id);
+
+  if (existing) {
+    await db.updatePassword(existing._id, { hash });
+  } else {
+    await db.createPassword({ user_id, hash });
+  }
+
+  return res.sendStatus(204); // Password reset, no content
+};
