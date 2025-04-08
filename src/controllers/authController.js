@@ -1,5 +1,3 @@
-// src/controllers/authController.js
-
 import bcrypt from 'bcrypt';
 import { createAccessToken, createRefreshToken } from '../utils/authTokens.js';
 import { db } from '../db/index.js';
@@ -7,7 +5,7 @@ import { db } from '../db/index.js';
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Validate input
+  // Validate input
   if (!email || !password) {
     return res
       .status(400)
@@ -15,11 +13,11 @@ export const loginUser = async (req, res) => {
   }
 
   try {
-    // 2. Find user by email
+    // Find user by email
     const user = db.users.find((u) => u.email === email);
     if (!user) return res.status(401).json({ message: 'Invalid credentials.' });
 
-    // 3. Find hashed password in password store
+    // Find hashed password in password store
     const pwRecord = db.passwords.find((p) => p.user_id === user._id);
     if (!pwRecord)
       return res.status(401).json({ message: 'Password not found.' });
@@ -28,18 +26,18 @@ export const loginUser = async (req, res) => {
     if (!match)
       return res.status(401).json({ message: 'Invalid credentials.' });
 
-    // 4. Create tokens
+    // Create tokens
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
 
-    // 5. Save refresh token to DB
+    // Save refresh token to DB
     db.refresh_tokens.push({
       user_id: user._id,
       token: refreshToken,
       created_at: new Date(),
     });
 
-    // 6. Send as cookies
+    // Send as cookies
     res
       .cookie('accessToken', accessToken, {
         httpOnly: true,
