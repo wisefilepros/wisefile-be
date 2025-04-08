@@ -450,6 +450,83 @@ export const fakeDb = {
     return true;
   },
 
+  // PASSWORD
+  passwords: db.passwords,
+  getAllPasswords: () => db.passwords,
+  getPasswordById: (id) => db.passwords.find((item) => item._id === id),
+  createPassword: (item) => {
+    const _id = uuidv4();
+    const timestamp = new Date();
+    const base = {
+      user_id: null,
+      hash: null,
+    };
+    const newItem = {
+      _id,
+      ...base,
+      ...item,
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+    db.passwords.push(newItem);
+    return newItem;
+  },
+  updatePassword: (id, updates) => {
+    const index = db.passwords.findIndex((item) => item._id === id);
+    if (index === -1) return null;
+    db.passwords[index] = {
+      ...db.passwords[index],
+      ...updates,
+      updated_at: new Date(),
+    };
+    return db.passwords[index];
+  },
+  deletePassword: (id) => {
+    const index = db.passwords.findIndex((item) => item._id === id);
+    if (index === -1) return false;
+    db.passwords.splice(index, 1);
+    return true;
+  },
+
+  // REFRESH_TOKEN
+  refresh_tokens: db.refresh_tokens,
+  getAllRefreshTokens: () => db.refresh_tokens,
+  getRefreshTokenById: (id) =>
+    db.refresh_tokens.find((item) => item._id === id),
+  createRefreshToken: (item) => {
+    const _id = uuidv4();
+    const timestamp = new Date();
+    const base = {
+      user_id: null,
+      token: null,
+    };
+    const newItem = {
+      _id,
+      ...base,
+      ...item,
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+    db.refresh_tokens.push(newItem);
+    return newItem;
+  },
+  updateRefreshToken: (id, updates) => {
+    const index = db.refresh_tokens.findIndex((item) => item._id === id);
+    if (index === -1) return null;
+    db.refresh_tokens[index] = {
+      ...db.refresh_tokens[index],
+      ...updates,
+      updated_at: new Date(),
+    };
+    return db.refresh_tokens[index];
+  },
+  deleteRefreshToken: (id) => {
+    const index = db.refresh_tokens.findIndex((item) => item._id === id);
+    if (index === -1) return false;
+    db.refresh_tokens.splice(index, 1);
+    return true;
+  },
+
   clearAll: () => {
     db.users = [];
     db.clients = [];
@@ -461,5 +538,7 @@ export const fakeDb = {
     db.fees = [];
     db.invoices = [];
     db.activitylogs = [];
+    db.passwords = [];
+    db.refresh_tokens = [];
   },
 };
