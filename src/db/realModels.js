@@ -1,10 +1,27 @@
-import UserModel from '../models/User.js';
+import { User } from '../models/User.js';
+import { Password } from '../models/Password.js';
+import { RefreshToken } from '../models/RefreshToken.js';
 
-export const createUser = (data) => UserModel.create(data);
-export const getUserById = (id) => UserModel.findById(id);
-export const getAllUsers = () => UserModel.find();
+// User model operations
+export const createUser = (data) => User.create(data);
+export const getUserById = (id) => User.findById(id);
+export const getAllUsers = () => User.find();
 export const updateUser = (id, updates) =>
-  UserModel.findByIdAndUpdate(id, updates, { new: true });
-export const deleteUser = (id) => UserModel.findByIdAndDelete(id);
+  User.findByIdAndUpdate(id, updates, { new: true });
+export const deleteUser = (id) => User.findByIdAndDelete(id);
 
-// Do the same for other models...
+// Password model operations
+export const createPassword = (item) => Password.create(item);
+export const getPasswordByUserId = (userId) =>
+  Password.findOne({ user_id: userId });
+export const updatePassword = (id, updates) =>
+  Password.findByIdAndUpdate(id, updates, { new: true });
+
+// RefreshToken model operations
+export const createRefreshToken = (item) => RefreshToken.create(item);
+export const getRefreshTokenByUserId = (userId) =>
+  RefreshToken.findOne({ user_id: userId });
+export const updateRefreshToken = (userId, updates) =>
+  RefreshToken.findOneAndUpdate({ user_id: userId }, updates, { new: true });
+export const deleteRefreshToken = (userId) =>
+  RefreshToken.findOneAndDelete({ user_id: userId });
