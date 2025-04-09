@@ -20,6 +20,7 @@ export const fakeDb = {
   users: db.users,
   getAllUsers: () => db.users,
   getUserById: (id) => db.users.find((item) => item._id === id),
+  getUserByEmail: (email) => db.users.find((u) => u.email === email),
   createUser: (item) => {
     const _id = uuidv4();
     const timestamp = new Date();
@@ -515,8 +516,10 @@ export const fakeDb = {
     db.refresh_tokens.push(newItem);
     return newItem;
   },
-  updateRefreshToken: (id, updates) => {
-    const index = db.refresh_tokens.findIndex((item) => item._id === id);
+  updateRefreshTokenByUserId: (user_id, updates) => {
+    const index = db.refresh_tokens.findIndex(
+      (item) => item.user_id === user_id
+    );
     if (index === -1) return null;
     db.refresh_tokens[index] = {
       ...db.refresh_tokens[index],

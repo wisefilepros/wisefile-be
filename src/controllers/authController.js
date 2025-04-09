@@ -15,7 +15,7 @@ export const loginUser = async (req, res) => {
 
   try {
     // Find user by email
-    const user = db.users.find((u) => u.email === email);
+    const user = await db.getUserByEmail(email);
     if (!user) return res.status(401).json({ message: 'Invalid credentials.' });
 
     // Find hashed password in password store
@@ -86,7 +86,7 @@ export const refreshToken = async (req, res) => {
     const newRefreshToken = createRefreshToken(user);
 
     // Update stored refresh token
-    await db.updateRefreshToken(user._id, {
+    await db.updateRefreshTokenByUserId(user._id, {
       token: newRefreshToken,
       updated_at: new Date(),
     });
