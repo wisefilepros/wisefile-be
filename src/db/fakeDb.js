@@ -496,8 +496,8 @@ export const fakeDb = {
   // REFRESH_TOKEN
   refresh_tokens: db.refresh_tokens,
   getAllRefreshTokens: () => db.refresh_tokens,
-  getRefreshTokenById: (id) =>
-    db.refresh_tokens.find((item) => item._id === id),
+  getRefreshTokenByUserId: (user_id) =>
+    db.refresh_tokens.find((t) => t.user_id === user_id),
   createRefreshToken: (item) => {
     const _id = uuidv4();
     const timestamp = new Date();
