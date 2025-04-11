@@ -39,13 +39,13 @@ export const createUser = async (req, res) => {
       phone_number,
     });
 
-    await logActivity({
-      user_id: req.user._id,
-      action: 'create',
-      entity_type: 'user',
-      entity_id: newUser._id,
-      details: `Created user ${newUser.full_name} (${newUser.role})`,
-    });
+    // await logActivity({
+    //   user_id: req.user._id,
+    //   action: 'create',
+    //   entity_type: 'user',
+    //   entity_id: newUser._id,
+    //   details: `Created user ${newUser.full_name} (${newUser.role})`,
+    // });
 
     res.status(201).json(newUser);
   } catch (err) {
