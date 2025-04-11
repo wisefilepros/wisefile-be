@@ -1,5 +1,6 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
+import { deleteUserAndCredentials } from '../utils/deleteUserAndCredentials.js';
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -76,18 +77,10 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const deleted = await db.deleteUser(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'User not found' });
+    const success = await deleteUserAndCredentials(req.params.id, req.user._id);
+    if (!success) return res.status(404).json({ message: 'User not found' });
 
-    await logActivity({
-      user_id: req.user._id,
-      action: 'delete',
-      entity_type: 'user',
-      entity_id: req.params.id,
-      details: `Deleted user with ID ${req.params.id}`,
-    });
-
-    res.status(200).json({ message: 'User deleted' });
+    res.status(200).json({ message: 'User and credentials deleted' });
   } catch (err) {
     console.error('Error deleting user:', err);
     res.status(500).json({ message: 'Internal server error' });
