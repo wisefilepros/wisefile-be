@@ -81,3 +81,16 @@ export const updateOwnPassword = async (req, res) => {
 
   res.status(200).json({ message: 'Password updated successfully.' });
 };
+
+export const deletePassword = async (req, res) => {
+  try {
+    const deleted = await db.deletePassword(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Password not found' });
+    }
+    res.status(204).send();
+  } catch (err) {
+    console.error('Error deleting password:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
