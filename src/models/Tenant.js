@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { createSchema } from './baseSchema.js';
 
 const TenantDefinition = {
+  client_id: String,
   tenant_code: String,
   full_name: String,
   first_name: String,

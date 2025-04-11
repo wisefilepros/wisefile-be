@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { createSchema } from './baseSchema.js';
 
 const PropertyDefinition = {
+  client_id: String,
   property_code: String,
   address: String,
   city: String,
