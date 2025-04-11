@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
-router.get('/', requireAuth, controller.getAllTenant);
+router.get('/', requireAuth, controller.getAllTenants);
 router.get('/:id', requireAuth, controller.getTenantById);
 router.post('/', requireAuth, controller.createTenant);
 router.patch('/:id', requireAuth, controller.updateTenant);

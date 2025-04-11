@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
-router.get('/', requireAuth, controller.getAllInvoice);
+router.get('/', requireAuth, controller.getAllInvoices);
 router.get('/:id', requireAuth, controller.getInvoiceById);
 router.post('/', requireAuth, controller.createInvoice);
 router.patch('/:id', requireAuth, controller.updateInvoice);
