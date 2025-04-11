@@ -13,5 +13,6 @@ router.post(
   controller.resetPassword
 );
 router.post('/update', requireAuth, controller.updateOwnPassword);
+router.delete('/:id', requireAuth, requireRole('admin'), controller.deletePassword);
 
 export default router;
