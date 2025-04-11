@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { getActivityLogsForUser } from '../utils/getActivityLogsForUser.js';
+import { getActivityLogsForUser } from '../utils/filteredResults.js';
 
 export const getAllActivityLogs = async (req, res) => {
   try {
