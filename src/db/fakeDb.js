@@ -121,6 +121,7 @@ export const fakeDb = {
     const _id = uuidv4();
     const timestamp = new Date();
     const base = {
+      client_id: null,
       property_code: null,
       address: null,
       city: null,
@@ -169,6 +170,7 @@ export const fakeDb = {
     const _id = uuidv4();
     const timestamp = new Date();
     const base = {
+      client_id: null,
       full_name: null,
       first_name: null,
       last_name: null,
