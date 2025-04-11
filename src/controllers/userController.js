@@ -1,10 +1,11 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
 import { deleteUserAndCredentials } from '../utils/deleteUserAndCredentials.js';
+import { getUsersForUser } from '../utils/filteredResults.js';
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await db.getAllUsers();
+    const users = await getUsersForUser(req.user);
     res.status(200).json(users);
   } catch (err) {
     console.error('Error fetching users:', err);

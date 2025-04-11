@@ -1,12 +1,14 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
+import { getInvoicesForUser } from '../utils/filteredResults.js';
 
-export const getAllInvoice = async (req, res) => {
+export const getAllInvoices = async (req, res) => {
   try {
-    const items = await db.getAllInvoices();
-    res.status(200).json(items);
+    const invoices = await getInvoicesForUser(req.user);
+    res.status(200).json(invoices);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch invoices' });
+    console.error('Error fetching invoices:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

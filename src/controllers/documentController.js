@@ -1,12 +1,14 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
+import { getDocumentsForUser } from '../utils/filteredResults.js';
 
-export const getAllDocument = async (req, res) => {
+export const getAllDocuments = async (req, res) => {
   try {
-    const items = await db.getAllDocuments();
-    res.status(200).json(items);
+    const documents = await getDocumentsForUser(req.user);
+    res.status(200).json(documents);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch documents' });
+    console.error('Error fetching documents:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

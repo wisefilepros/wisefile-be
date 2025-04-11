@@ -1,12 +1,14 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
+import { getMessagesForUser } from '../utils/filteredResults.js';
 
-export const getAllMessage = async (req, res) => {
+export const getAllMessages = async (req, res) => {
   try {
-    const items = await db.getAllMessages();
-    res.status(200).json(items);
+    const messages = await getMessagesForUser(req.user);
+    res.status(200).json(messages);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch messages' });
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
