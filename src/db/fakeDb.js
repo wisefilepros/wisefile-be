@@ -221,14 +221,40 @@ export const fakeDb = {
       primary_contact_id: null,
       status: null,
       sub_status: null,
-      courtCaseNumber: null,
-      courtName: null,
+      court_case_number: null,
+      court_name: null,
       court_decision: null,
       start_date: null,
       end_date: null,
+      is_active: true,
+      is_temporary: false,
       description: null,
       internal_notes: [],
+      rentFeesClaims: {
+        filingPoNumber: null,
+        baseRent: 0,
+        holdover: false,
+        monthsUnpaid: 0,
+        currentMonthUnpaidDate: null,
+        isSubsidized: false,
+        rentalReliefApplication: false,
+        lateFee: 0,
+        lateMonths: 0,
+        filingFee: 0,
+        miscDebts: [],
+      },
+      acknowledgment: {
+        rentalReliefConfirmed: false,
+        statementsConfirmed: false,
+      },
+      missing_attachments_reason: {
+        lease: { selectedOverride: null, reason: null },
+        ledger: { selectedOverride: null, reason: null },
+        demand: { selectedOverride: null, reason: null },
+        deed: { selectedOverride: null, reason: null },
+      },
     };
+
     const newItem = {
       _id,
       ...base,
@@ -236,6 +262,7 @@ export const fakeDb = {
       created_at: timestamp,
       updated_at: timestamp,
     };
+
     db.caserecords.push(newItem);
     return newItem;
   },
