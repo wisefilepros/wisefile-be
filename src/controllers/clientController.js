@@ -1,5 +1,6 @@
 import { db } from '../db/index.js';
 import { logActivity } from '../utils/logActivity.js';
+import { generateClientCode } from '../utils/generators.js';
 
 export const getAllClient = async (req, res) => {
   try {
@@ -22,16 +23,29 @@ export const getClientById = async (req, res) => {
 
 export const createClient = async (req, res) => {
   try {
-    const newItem = await db.createClient(req.body);
+    const { legal_name, ...rest } = req.body;
+
+    const allClients = await db.getAllClients();
+    const existingCodes = allClients.map((c) => c.client_code).filter(Boolean);
+    const client_code = generateClientCode(legal_name, existingCodes);
+
+    const newClient = await db.createClient({
+      legal_name,
+      client_code,
+      ...rest,
+    });
+
     await logActivity({
       user_id: req.user._id,
       action: 'create',
       entity_type: 'client',
-      entity_id: newItem._id,
-      details: `Created new client: ${newItem._id}`,
+      entity_id: newClient._id,
+      details: `Created client ${legal_name} (${client_code})`,
     });
-    res.status(201).json(newItem);
+
+    res.status(201).json(newClient);
   } catch (err) {
+    console.error('Failed to create client:', err);
     res.status(500).json({ message: 'Failed to create client' });
   }
 };
