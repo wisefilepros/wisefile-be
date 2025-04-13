@@ -1,6 +1,10 @@
 import { db } from '../db/index.js';
+import { uploadToS3 } from '../utils/s3.js';
 import { logActivity } from '../utils/logActivity.js';
 import { getDocumentsForUser } from '../utils/filteredResults.js';
+import multer from 'multer';
+
+const upload = multer({ storage: multer.memoryStorage() }).single('file');
 
 export const getAllDocuments = async (req, res) => {
   try {
@@ -22,21 +26,61 @@ export const getDocumentById = async (req, res) => {
   }
 };
 
-export const createDocument = async (req, res) => {
-  try {
-    const newItem = await db.createDocument(req.body);
-    await logActivity({
-      user_id: req.user._id,
-      action: 'create',
-      entity_type: 'document',
-      entity_id: newItem._id,
-      details: `Created new document: ${newItem._id}`,
-    });
-    res.status(201).json(newItem);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to create document' });
-  }
-};
+export const createDocument = [
+  upload,
+  async (req, res) => {
+    try {
+      const {
+        case_id,
+        name,
+        notes,
+        tags,
+        client_id,
+        is_confidential,
+        is_temporary,
+        type,
+      } = req.body;
+      const file = req.file;
+
+      if (!file) return res.status(400).json({ message: 'File is required' });
+
+      const { file_url, file_path, file_type } = await uploadToS3(
+        file.buffer,
+        file.originalname,
+        file.mimetype
+      );
+
+      const doc = await db.createDocument({
+        case_id,
+        client_id,
+        name: name || file.originalname,
+        notes,
+        tags: tags ? tags.split(',') : [],
+        is_confidential: is_confidential === 'true',
+        is_temporary: is_temporary === 'true',
+        type,
+        file_url,
+        file_path,
+        file_type,
+        uploaded_by: req.user._id,
+        uploaded_at: new Date(),
+      });
+
+      await logActivity({
+        user_id: req.user._id,
+        action: 'create',
+        entity_type: 'document',
+        entity_id: doc._id,
+        details: `Uploaded document ${doc.name}`,
+      });
+
+      res.status(201).json(doc);
+    } catch (err) {
+      console.error('Failed to upload document:', err);
+      res.status(500).json({ message: 'Failed to upload document' });
+    }
+  },
+];
 
 export const updateDocument = async (req, res) => {
   try {
