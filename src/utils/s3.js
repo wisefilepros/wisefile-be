@@ -38,3 +38,18 @@ export async function uploadToS3(fileBuffer, originalName, mimetype) {
     file_type: mimetype,
   };
 }
+
+export async function deleteFromS3(filePath) {
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.S3_BUCKET,
+    Key: filePath,
+  });
+
+  try {
+    await s3.send(command);
+    console.log(`S3 file deleted: ${filePath}`);
+  } catch (err) {
+    console.error(`Failed to delete file from S3: ${filePath}`, err);
+    throw err;
+  }
+}

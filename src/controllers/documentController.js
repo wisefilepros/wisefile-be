@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { uploadToS3 } from '../utils/s3.js';
+import { uploadToS3, deleteFromS3 } from '../utils/s3.js';
 import { logActivity } from '../utils/logActivity.js';
 import { getDocumentsForUser } from '../utils/filteredResults.js';
 import multer from 'multer';
@@ -102,18 +102,27 @@ export const updateDocument = async (req, res) => {
 
 export const deleteDocument = async (req, res) => {
   try {
-    const deleted = await db.deleteDocument(req.params.id);
-    if (!deleted)
+    const document = await db.getDocumentById(req.params.id);
+    if (!document)
       return res.status(404).json({ message: 'Document not found' });
+
+    // Delete the file from S3
+    await deleteFromS3(document.file_path);
+
+    // Remove from DB
+    await db.deleteDocument(req.params.id);
+
     await logActivity({
       user_id: req.user._id,
       action: 'delete',
       entity_type: 'document',
       entity_id: req.params.id,
-      details: `Deleted document: ${req.params.id}`,
+      details: `Deleted document ${document.name}`,
     });
-    res.sendStatus(204);
+
+    res.status(200).json({ message: 'Document deleted' });
   } catch (err) {
+    console.error('Failed to delete document:', err);
     res.status(500).json({ message: 'Failed to delete document' });
   }
 };
