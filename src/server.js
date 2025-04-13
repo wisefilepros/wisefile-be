@@ -15,6 +15,7 @@ import documentRoutes from './routes/documentRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import feeRoutes from './routes/feeRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import activityLogRoutes from './routes/activityLogRoutes.js';
 import utilsRoutes from './routes/utilsRoutes.js';
 
@@ -47,8 +48,8 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/fees', feeRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
-
 // Utility Routes
 app.use('/api/utils', utilsRoutes);
 
