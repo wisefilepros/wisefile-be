@@ -12,6 +12,11 @@ const InvoiceDefinition = {
   due_date: Date,
   status: { type: String, enum: ['unpaid', 'paid', 'overdue'] },
   payment_details: { type: Object, default: {} },
+  stripe_invoice_id: String,
+  stripe_payment_link: String,
+  payment_method: String,
+  payment_status: String,
+  paid_at: Date,
   associated_fees: [String],
   notes: String,
 };

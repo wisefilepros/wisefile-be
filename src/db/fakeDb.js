@@ -395,6 +395,11 @@ export const fakeDb = {
       issued_date: null,
       due_date: null,
       status: 'unpaid',
+      stripe_invoice_id: null,
+      stripe_payment_link: null,
+      payment_method: null,
+      payment_status: null,
+      paid_at: null,
       notes: null,
     };
     const newItem = {
