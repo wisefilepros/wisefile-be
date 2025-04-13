@@ -7,6 +7,7 @@ import { config } from './config/env.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import passwordRoutes from './routes/passwordRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import caseRecordRoutes from './routes/caseRecordRoutes.js';
 import clientRoutes from './routes/clientRoutes.js';
 import tenantRoutes from './routes/tenantRoutes.js';
@@ -40,6 +41,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/passwords', passwordRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/cases', caseRecordRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/tenants', tenantRoutes);
