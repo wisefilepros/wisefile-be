@@ -25,8 +25,9 @@ export const getCaseAnalytics = async (req, res) => {
           return {
             caseNumber: caseRecord.case_number,
             fileType:
-              caseRecord.type.charAt(0).toUpperCase() +
-              caseRecord.type.slice(1),
+              typeof caseRecord?.type === 'string'
+                ? caseRecord.type[0].toUpperCase() + caseRecord.type.slice(1)
+                : 'Unknown',
             address: property?.formatted_address || 'N/A',
             state: property?.state || 'N/A',
             client: client?.display_name || 'N/A',
@@ -54,8 +55,9 @@ export const getCaseAnalytics = async (req, res) => {
           return {
             caseNumber: caseRecord.case_number,
             fileType:
-              caseRecord.type.charAt(0).toUpperCase() +
-              caseRecord.type.slice(1),
+              typeof caseRecord?.type === 'string'
+                ? caseRecord.type[0].toUpperCase() + caseRecord.type.slice(1)
+                : 'Unknown',
             address: property?.formatted_address || 'N/A',
             state: property?.state || 'N/A',
             client: client?.display_name || 'N/A',
