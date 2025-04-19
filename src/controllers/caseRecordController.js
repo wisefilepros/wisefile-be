@@ -12,9 +12,9 @@ export const getAllCaseRecords = async (req, res) => {
   }
 };
 
-export const getCaseRecordById = async (req, res) => {
+export const getCaseDetail = async (req, res) => {
   try {
-    const record = await db.getCaseRecordById(req.params.id);
+    const record = await db.caseRecords.getCaseDetail(req.params.id);
     if (!record) return res.status(404).json({ message: 'Case not found' });
     res.status(200).json(record);
   } catch (err) {
