@@ -2,20 +2,28 @@ import mongoose from 'mongoose';
 import { createSchema } from './baseSchema.js';
 
 const PropertyDefinition = {
-  client_id: String,
-  property_code: String,
-  address: String,
-  city: String,
-  state: String,
-  zip: String,
-  formatted_address: String,
-  unit_count: Number,
-  is_commercial: Boolean,
-  occupancy_status: String,
-  is_active: Boolean,
-  management_company: String,
+  client_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
+  property_code: { type: String, default: '' },
+  address: { type: String, default: '' },
+  city: { type: String, default: '' },
+  state: { type: String, default: '' },
+  zip: { type: String, default: '' },
+  formatted_address: { type: String, required: true },
+  unit_count: { type: Number, default: 0 },
+  is_commercial: { type: Boolean, default: false },
+  occupancy_status: { type: String, default: '' },
+  is_active: { type: Boolean, default: true },
+  is_deleted: { type: Boolean, default: false },
+  management_company_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ManagementCompany',
+  },
   associated_tenants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tenant' }],
 };
+
+propertySchema.index({ client_id: 1 });
+propertySchema.index({ formatted_address: 1 });
+propertySchema.index({ management_company_id: 1 });
 
 const PropertySchema = createSchema(PropertyDefinition);
 export const Property = mongoose.model('Property', PropertySchema);

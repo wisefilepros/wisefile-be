@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { createSchema } from './baseSchema.js';
 
 const UserDefinition = {
-  full_name: String,
+  full_name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   role: {
     type: String,
@@ -11,14 +11,18 @@ const UserDefinition = {
   },
   client_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
   is_active: { type: Boolean, default: true },
-  phone_number: String,
-  last_login: Date,
+  phone_number: { type: String, default: '' },
+  last_login: { type: Date, default: Date.now },
   email_verified: { type: Boolean, default: false },
   two_factor_enabled: { type: Boolean, default: false },
-  profile_picture_url: String,
+  profile_picture_url: { type: String, default: '' },
   preferences: { type: Object, default: {} },
-  notifications: [String],
+  notifications: { type: [String], default: [] },
 };
+
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ client_id: 1 });
+userSchema.index({ role: 1 });
 
 const UserSchema = createSchema(UserDefinition);
 export const User = mongoose.model('User', UserSchema);
