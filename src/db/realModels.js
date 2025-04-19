@@ -359,7 +359,7 @@ async function deleteActivityLog(id) {
   return ActivityLog.findByIdAndDelete(id);
 }
 
-export const caseReords = {
+export const caseRecords = {
   getCaseById,
   getAllCases,
   getCaseDetail,
@@ -444,8 +444,8 @@ export const activityLogs = {
   deleteActivityLog,
 };
 
-export const db = {
-  caseReords,
+export default {
+  caseRecords,
   users,
   passwords,
   refreshTokens,
@@ -456,5 +456,6 @@ export const db = {
   messages,
   fees,
   invoices,
-  activityLogs,
+  activityLogs
 };
+
