@@ -444,7 +444,7 @@ export const activityLogs = {
   deleteActivityLog,
 };
 
-export default {
+const realDb = {
   caseRecords,
   users,
   passwords,
@@ -459,3 +459,4 @@ export default {
   activityLogs
 };
 
+export default realDb;
