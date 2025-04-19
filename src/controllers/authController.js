@@ -1,148 +1,132 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { createAccessToken, createRefreshToken } from '../utils/authTokens.js';
+import { logActivity } from '../utils/logActivity.js';
+import {
+  createAccessToken,
+  createRefreshToken,
+  setAuthCookies,
+  clearAuthCookies,
+} from '../utils/authTokens.js';
 import { db } from '../db/index.js';
 
-export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+const generateTokenPair = (user) => {
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user);
+  return { accessToken, refreshToken };
+};
 
-  // Validate input
-  if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: 'Email and password are required.' });
-  }
-
+export const registerUser = async (req, res) => {
   try {
-    // Find user by email
-    const user = await db.getUserByEmail(email);
-    if (!user) return res.status(401).json({ message: 'Invalid credentials.' });
+    const skipAuth = (await db.users.getAllUsers()).length === 0;
 
-    // Find hashed password in password store
-    const pwRecord = db.passwords.find((p) => p.user_id === user._id);
-    if (!pwRecord)
-      return res.status(401).json({ message: 'Password not found.' });
+    if (!skipAuth && !req.user) {
+      return res.status(401).json({ error: 'Authentication required.' });
+    }
 
-    const match = await bcrypt.compare(password, pwRecord.hash);
-    if (!match)
-      return res.status(401).json({ message: 'Invalid credentials.' });
+    const { full_name, email, role, client_id, password } = req.body;
 
-    // Create tokens
-    const accessToken = createAccessToken(user);
-    const refreshToken = createRefreshToken(user);
+    const existing = await db.users.getUserByEmail(email);
+    if (existing) {
+      return res.status(409).json({ error: 'User already exists.' });
+    }
 
-    // Save refresh token to DB
-    db.refresh_tokens.push({
-      user_id: user._id,
-      token: refreshToken,
-      created_at: new Date(),
+    const newUser = await db.users.createUser({
+      full_name,
+      email,
+      role,
+      client_id,
+    });
+    const hash = await bcrypt.hash(password, 10);
+    await db.passwords.createPassword({ user_id: newUser._id, hash });
+
+    logActivity({
+      entity_id: newUser._id,
+      entity_type: 'user',
+      action_type: 'create',
+      action: `Created user ${full_name}`,
+      user_id: req.user?._id || newUser._id,
     });
 
-    // Send as cookies
-    res
-      .cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-        maxAge: 60 * 60 * 1000, // 1 hour
-      })
-      .cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
-      .status(200)
-      .json({
-        message: 'Login successful',
-        user: {
-          _id: user._id,
-          full_name: user.full_name,
-          email: user.email,
-          role: user.role,
-          client_id: user.client_id,
-        },
-      });
+    res.status(201).json({ message: 'User registered.', user: newUser });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ error: 'Registration failed.' });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await db.users.getUserByEmail(email);
+    if (!user) return res.status(401).json({ error: 'User not found.' });
+
+    const passwordData = await db.passwords.getPasswordByUserId(user._id);
+    if (!passwordData)
+      return res.status(401).json({ error: 'Password not set for user.' });
+
+    const isMatch = await bcrypt.compare(password, passwordData.hash);
+    if (!isMatch) return res.status(401).json({ error: 'Incorrect password.' });
+
+    await db.users.updateUser(user._id, { last_login: new Date() });
+
+    const tokens = generateTokenPair(user);
+    await db.refreshTokens.createRefreshToken({
+      user_id: user._id,
+      token: tokens.refreshToken,
+    });
+
+    setAuthCookies(res, { refreshToken: tokens.refreshToken });
+
+    logActivity({
+      entity_id: user._id,
+      entity_type: 'user',
+      action_type: 'login',
+      action: 'User logged in',
+      user_id: user._id,
+    });
+
+    res.json({ accessToken: tokens.accessToken, user });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: 'Login failed.' });
   }
 };
 
 export const refreshToken = async (req, res) => {
-  const token = req.cookies?.refreshToken;
-  if (!token) return res.sendStatus(401);
-
   try {
+    const token = req.cookies?.refreshToken;
+    if (!token)
+      return res.status(401).json({ error: 'No refresh token provided.' });
+
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const stored = await db.getRefreshTokenByUserId(decoded._id);
-    if (!stored || stored.token !== token) return res.sendStatus(403);
+    const user = await db.users.getUserById(decoded._id);
 
-    const user = await db.getUserById(decoded._id);
-    if (!user || !user.is_active) return res.sendStatus(403);
+    const stored = await db.refreshTokens.getRefreshTokenByUserId(user._id);
+    if (!stored || stored.token !== token) {
+      return res.status(403).json({ error: 'Invalid refresh token.' });
+    }
 
-    // Generate new tokens
-    const newAccessToken = createAccessToken(user);
-    const newRefreshToken = createRefreshToken(user);
-
-    // Update stored refresh token
-    await db.updateRefreshTokenByUserId(user._id, {
-      token: newRefreshToken,
-      updated_at: new Date(),
+    const tokens = generateTokenPair(user);
+    await db.refreshTokens.updateRefreshTokenByUserId(user._id, {
+      token: tokens.refreshToken,
     });
 
-    // Set cookies
-    res
-      .cookie('accessToken', newAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-        maxAge: 60 * 60 * 1000, // 1 hour
-      })
-      .cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
-      .status(200)
-      .json({
-        message: 'Token refreshed',
-        user: {
-          _id: user._id,
-          full_name: user.full_name,
-          role: user.role,
-          client_id: user.client_id,
-        },
-      });
+    setAuthCookies(res, { refreshToken: tokens.refreshToken });
+    res.json({ accessToken: tokens.accessToken });
   } catch (err) {
     console.error('Refresh error:', err);
-    return res.sendStatus(403);
+    res.status(403).json({ error: 'Invalid or expired refresh token.' });
   }
 };
 
 export const logoutUser = async (req, res) => {
-  const token = req.cookies?.refreshToken;
-  if (!token) return res.sendStatus(204); // No content, no cookie = already logged out
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    await db.deleteRefreshToken(decoded._id); // delete from DB or fakeDb
-
-    res
-      .clearCookie('accessToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-      })
-      .clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
-      })
-      .sendStatus(204); // success, no content
+    clearAuthCookies(res);
+    await db.refreshTokens.deleteRefreshToken(req.user._id);
+    res.json({ message: 'Logged out.' });
   } catch (err) {
     console.error('Logout error:', err);
-    res.sendStatus(403); // token invalid
+    res.status(500).json({ error: 'Logout failed.' });
   }
 };
