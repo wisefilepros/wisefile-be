@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
-import { connectToMongo } from './config/connectToMongo.js';
+import { connectToMongo } from './config/connecToMongo.js';
 import { initAdminUser } from './config/initAdminUser.js';
-import { db } from './db/index.js'; // so we can log which db is used
+import { db } from './db/index.js';
 
 // Route Imports
 import userRoutes from './routes/userRoutes.js';
@@ -61,11 +61,15 @@ app.use('/api/health', healthRoutes);
 
 // Start server
 const startServer = async () => {
-  if (config.mongoUri) {
+  if (config.env === 'production' && config.mongoUri) {
     await connectToMongo();
+    await initAdminUser();
+  } else {
+    console.warn(
+      '⚠️ Skipping Mongo connection — using fakeDb in development mode.'
+    );
+    await initAdminUser();
   }
-
-  await initAdminUser(); // <-- Always run, even in fakeDb mode
 
   app.listen(config.port, () => {
     console.log(
