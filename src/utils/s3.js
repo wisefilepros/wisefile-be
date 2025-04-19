@@ -1,16 +1,18 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
+import { config } from '../config/env.js';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 import mime from 'mime-types';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+  region: config.aws.region,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: config.aws.accessKeyId,
+    secretAccessKey: config.aws.secretAccessKey,
   },
 });
 
@@ -24,7 +26,7 @@ export async function uploadToS3(fileBuffer, originalName, mimetype) {
   const key = generateFileKey(originalName);
 
   const command = new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET,
+    Bucket: config.aws.bucket,
     Key: key,
     Body: fileBuffer,
     ContentType: mimetype,
@@ -33,7 +35,7 @@ export async function uploadToS3(fileBuffer, originalName, mimetype) {
   await s3.send(command);
 
   return {
-    file_url: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+    file_url: `https://${config.aws.bucket}.s3.${config.aws.region}.amazonaws.com/${key}`,
     file_path: key,
     file_type: mimetype,
   };
@@ -41,7 +43,7 @@ export async function uploadToS3(fileBuffer, originalName, mimetype) {
 
 export async function deleteFromS3(filePath) {
   const command = new DeleteObjectCommand({
-    Bucket: process.env.S3_BUCKET,
+    Bucket: config.aws.bucket,
     Key: filePath,
   });
 
