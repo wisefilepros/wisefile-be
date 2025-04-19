@@ -3,7 +3,7 @@ import { createSchema } from './baseSchema.js';
 
 const UserDefinition = {
   full_name: { type: String, required: true },
-  email: { type: String, unique: true, required: true },
+  email: { type: String, required: true },
   role: {
     type: String,
     enum: ['admin', 'client', 'attorney', 'operations'],
@@ -20,9 +20,10 @@ const UserDefinition = {
   notifications: { type: [String], default: [] },
 };
 
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ client_id: 1 });
-userSchema.index({ role: 1 });
-
 const UserSchema = createSchema(UserDefinition);
+
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ client_id: 1 });
+UserSchema.index({ role: 1 });
+
 export const User = mongoose.model('User', UserSchema);

@@ -24,10 +24,11 @@ const MessageDefinition = {
   read_by: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 };
 
-messageSchema.index({ case_id: 1 });
-messageSchema.index({ recipient_ids: 1 });
-messageSchema.index({ read_by: 1 });
-messageSchema.index({ message_type: 1 });
-
 const MessageSchema = createSchema(MessageDefinition);
+
+MessageSchema.index({ case_id: 1 });
+MessageSchema.index({ recipient_ids: 1 });
+MessageSchema.index({ read_by: 1 });
+MessageSchema.index({ message_type: 1 });
+
 export const Message = mongoose.model('Message', MessageSchema);

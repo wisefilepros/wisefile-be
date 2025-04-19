@@ -25,10 +25,11 @@ const InvoiceDefinition = {
   notes: { type: String, default: '' },
 };
 
-invoiceSchema.index({ client_id: 1 });
-invoiceSchema.index({ case_id: 1 });
-invoiceSchema.index({ status: 1 });
-invoiceSchema.index({ due_date: 1 });
-
 const InvoiceSchema = createSchema(InvoiceDefinition);
+
+InvoiceSchema.index({ client_id: 1 });
+InvoiceSchema.index({ case_id: 1 });
+InvoiceSchema.index({ status: 1 });
+InvoiceSchema.index({ due_date: 1 });
+
 export const Invoice = mongoose.model('Invoice', InvoiceSchema);

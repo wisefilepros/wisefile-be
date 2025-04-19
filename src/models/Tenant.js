@@ -20,8 +20,9 @@ const TenantDefinition = {
   ],
 };
 
-tenantSchema.index({ client_id: 1 });
-tenantSchema.index({ full_name: 1 });
-
 const TenantSchema = createSchema(TenantDefinition);
+
+TenantSchema.index({ client_id: 1 });
+TenantSchema.index({ full_name: 1 });
+
 export const Tenant = mongoose.model('Tenant', TenantSchema);

@@ -10,10 +10,10 @@ const RefreshTokenDefinition = {
   token: { type: String, required: true },
 };
 
-refreshTokenSchema.index({ user_id: 1 });
-refreshTokenSchema.index({ token: 1 });
-refreshTokenSchema.index({ updated_at: 1 }, { expireAfterSeconds: 2592000 }); // 30 days
-
-
 const RefreshTokenSchema = createSchema(RefreshTokenDefinition);
+
+RefreshTokenSchema.index({ user_id: 1 });
+RefreshTokenSchema.index({ token: 1 });
+RefreshTokenSchema.index({ updated_at: 1 }, { expireAfterSeconds: 2592000 }); // 30 days
+
 export const RefreshToken = mongoose.model('RefreshToken', RefreshTokenSchema);

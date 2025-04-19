@@ -15,10 +15,11 @@ const ActivityLogDefinition = {
   timestamp: Date,
 };
 
-activityLogSchema.index({ user_id: 1 });
-activityLogSchema.index({ action: 1 });
-activityLogSchema.index({ entity_type: 1 });
-activityLogSchema.index({ timestamp: 1 });
-
 const ActivityLogSchema = createSchema(ActivityLogDefinition);
+
+ActivityLogSchema.index({ user_id: 1 });
+ActivityLogSchema.index({ action: 1 });
+ActivityLogSchema.index({ entity_type: 1 });
+ActivityLogSchema.index({ timestamp: 1 });
+
 export const ActivityLog = mongoose.model('ActivityLog', ActivityLogSchema);

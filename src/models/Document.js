@@ -20,10 +20,11 @@ const DocumentDefinition = {
   tags: { type: [String], default: [] },
 };
 
-documentSchema.index({ client_id: 1 });
-documentSchema.index({ case_id: 1 });
-documentSchema.index({ type: 1 });
-documentSchema.index({ uploaded_by: 1 });
-
 const DocumentSchema = createSchema(DocumentDefinition);
+
+DocumentSchema.index({ client_id: 1 });
+DocumentSchema.index({ case_id: 1 });
+DocumentSchema.index({ type: 1 });
+DocumentSchema.index({ uploaded_by: 1 });
+
 export const Document = mongoose.model('Document', DocumentSchema);

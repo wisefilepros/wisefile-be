@@ -21,9 +21,10 @@ const PropertyDefinition = {
   associated_tenants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tenant' }],
 };
 
-propertySchema.index({ client_id: 1 });
-propertySchema.index({ formatted_address: 1 });
-propertySchema.index({ management_company_id: 1 });
-
 const PropertySchema = createSchema(PropertyDefinition);
+
+PropertySchema.index({ client_id: 1 });
+PropertySchema.index({ formatted_address: 1 });
+PropertySchema.index({ management_company_id: 1 });
+
 export const Property = mongoose.model('Property', PropertySchema);

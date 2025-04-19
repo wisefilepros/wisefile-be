@@ -14,8 +14,9 @@ const FeeDefinition = {
   client_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Client' },
 };
 
-feeSchema.index({ case_id: 1 });
-feeSchema.index({ client_id: 1 });
-
 const FeeSchema = createSchema(FeeDefinition);
+
+FeeSchema.index({ case_id: 1 });
+FeeSchema.index({ client_id: 1 });
+
 export const Fee = mongoose.model('Fee', FeeSchema);

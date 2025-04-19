@@ -26,8 +26,9 @@ const ClientDefinition = {
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 };
 
-clientSchema.index({ client_code: 1 }, { unique: true });
-clientSchema.index({ display_name: 1 });
-
 const ClientSchema = createSchema(ClientDefinition);
+
+ClientSchema.index({ client_code: 1 }, { unique: true });
+ClientSchema.index({ display_name: 1 });
+
 export const Client = mongoose.model('Client', ClientSchema);

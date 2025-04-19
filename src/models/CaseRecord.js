@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { createSchema } from './baseSchema.js';
 
 const CaseRecordDefinition = {
-  case_number: { type: String, required: true, unique: true },
+  case_number: { type: String, required: true },
   type: { type: String, enum: ['filing', 'collection', 'eviction'] },
   status: { type: String },
   sub_status: { type: String },
@@ -55,12 +55,13 @@ const CaseRecordDefinition = {
   },
 };
 
-caseRecordSchema.index({ case_number: 1 }, { unique: true });
-caseRecordSchema.index({ client_id: 1 });
-caseRecordSchema.index({ status: 1 });
-caseRecordSchema.index({ sub_status: 1 });
-caseRecordSchema.index({ type: 1 });
-caseRecordSchema.index({ management_company_id: 1 });
-
 const CaseRecordSchema = createSchema(CaseRecordDefinition);
+
+CaseRecordSchema.index({ case_number: 1 }, { unique: true });
+CaseRecordSchema.index({ client_id: 1 });
+CaseRecordSchema.index({ status: 1 });
+CaseRecordSchema.index({ sub_status: 1 });
+CaseRecordSchema.index({ type: 1 });
+CaseRecordSchema.index({ management_company_id: 1 });
+
 export const CaseRecord = mongoose.model('CaseRecord', CaseRecordSchema);
