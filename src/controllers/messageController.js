@@ -12,6 +12,23 @@ export const getAllMessages = async (req, res) => {
   }
 };
 
+export const getMessagesByQuery = async (req, res) => {
+  try {
+    const { case_id } = req.query;
+
+    if (!case_id) {
+      return res.status(400).json({ message: 'Missing case_id query parameter' });
+    }
+
+    const messages = await db.messages.getMessagesForCase(case_id);
+
+    res.status(200).json(messages);
+  } catch (err) {
+    console.error('Error fetching messages by query:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 export const getMessageById = async (req, res) => {
   try {
     const item = await db.messages.getMessageById(req.params.id);

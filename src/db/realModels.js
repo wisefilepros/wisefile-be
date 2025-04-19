@@ -272,6 +272,17 @@ async function getMessageById(id) {
     .lean();
 }
 
+async function getMessagesByQuery(caseId) {
+  return Message.find({
+    case_id: caseId,
+    visible_to_users: { $ne: false },
+  })
+    .populate('sender_id', 'full_name')
+    .populate('recipient_ids', 'full_name')
+    .populate('read_by', 'full_name')
+    .lean();
+}
+
 async function getAllMessages() {
   return Message.find()
     .populate('sender_id', 'full_name')
@@ -372,12 +383,16 @@ export async function getAnalyticsSummaryForUser(user) {
     CaseRecord.find(caseFilters).lean(),
     Fee.find(feeFilters).lean(),
     Property.find().lean(),
-    Client.find().lean()
+    Client.find().lean(),
   ]);
 
-  const propertyMap = Object.fromEntries(properties.map(p => [p._id.toString(), p]));
-  const clientMap = Object.fromEntries(clients.map(c => [c._id.toString(), c]));
-  const caseMap = Object.fromEntries(cases.map(c => [c._id.toString(), c]));
+  const propertyMap = Object.fromEntries(
+    properties.map((p) => [p._id.toString(), p])
+  );
+  const clientMap = Object.fromEntries(
+    clients.map((c) => [c._id.toString(), c])
+  );
+  const caseMap = Object.fromEntries(cases.map((c) => [c._id.toString(), c]));
 
   const monthlyRevenue = {};
   const fileAnalytics = [];
@@ -394,18 +409,19 @@ export async function getAnalyticsSummaryForUser(user) {
 
     fileAnalytics.push({
       caseNumber: caseRecord.case_number,
-      fileType: caseRecord.type?.charAt(0).toUpperCase() + caseRecord.type?.slice(1),
+      fileType:
+        caseRecord.type?.charAt(0).toUpperCase() + caseRecord.type?.slice(1),
       address: property?.formatted_address || 'N/A',
       state: property?.state || 'N/A',
       client: client?.display_name || 'N/A',
       revenue: fee.amount,
-      month
+      month,
     });
   }
 
   return {
     monthlyRevenue,
-    fileAnalytics
+    fileAnalytics,
   };
 }
 
@@ -468,6 +484,7 @@ export const documents = {
 export const messages = {
   createMessage,
   getMessageById,
+  getMessagesByQuery,
   getAllMessages,
   updateMessage,
   deleteMessage,

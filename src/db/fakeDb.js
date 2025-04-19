@@ -94,6 +94,10 @@ const fakeDb = {
     }),
     getMessageById: (id) => ({ _id: id }),
     getAllMessages: () => [],
+    getMessagesForCase: (caseId) =>
+      fakeDb.messages
+        .getAllMessages()
+        .filter((m) => m.case_id === caseId && m.visible_to_users !== false),
     updateMessage: (id, updates) => ({ _id: id, ...updates }),
     deleteMessage: (id) => ({ _id: id }),
   },
