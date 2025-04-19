@@ -10,87 +10,451 @@ import { Message } from '../models/Message.js';
 import { Fee } from '../models/Fee.js';
 import { Invoice } from '../models/Invoice.js';
 import { ActivityLog } from '../models/ActivityLog.js';
+import { CASE_STATUSES } from '../utils/caseStatusOptions.js';
 
-// User
-export const createUser = (data) => User.create(data);
-export const getUserById = (id) => User.findById(id);
-export const getUserByEmail = (email) => User.findOne({ email });
-export const getAllUsers = () => User.find();
-export const updateUser = (id, updates) => User.findByIdAndUpdate(id, updates, { new: true });
-export const deleteUser = (id) => User.findByIdAndDelete(id);
+// --- CASE RECORDS ---
+async function getCaseById(id) {
+  return CaseRecord.findById(id).lean();
+}
 
-// Password
-export const createPassword = (data) => Password.create(data);
-export const getPasswordByUserId = (userId) => Password.findOne({ user_id: userId });
-export const updatePassword = (id, updates) => Password.findByIdAndUpdate(id, updates, { new: true });
-export const deletePassword = (id) => Password.findByIdAndDelete(id);
+async function getAllCases() {
+  return CaseRecord.find({})
+    .populate('client_id')
+    .populate('tenants')
+    .populate('property_id')
+    .populate('attorney_id')
+    .populate('operator_id')
+    .populate('primary_contact_id')
+    .lean();
+}
 
-// RefreshToken
-export const createRefreshToken = (data) => RefreshToken.create(data);
-export const getRefreshTokenByUserId = (userId) => RefreshToken.findOne({ user_id: userId });
-export const updateRefreshTokenByUserId = (userId, updates) =>
-  RefreshToken.findOneAndUpdate({ user_id: userId }, updates, { new: true });
-export const deleteRefreshToken = (userId) => RefreshToken.findOneAndDelete({ user_id: userId });
+async function getCaseDetail(id) {
+  const caseRecord = await CaseRecord.findById(id)
+    .populate('client_id')
+    .populate('tenants')
+    .populate('property_id')
+    .populate('attorney_id')
+    .populate('operator_id')
+    .populate('primary_contact_id')
+    .lean();
 
-// Client
-export const createClient = (data) => Client.create(data);
-export const getClientById = (id) => Client.findById(id);
-export const getAllClients = () => Client.find();
-export const updateClient = (id, updates) => Client.findByIdAndUpdate(id, updates, { new: true });
-export const deleteClient = (id) => Client.findByIdAndDelete(id);
+  if (!caseRecord) return null;
 
-// Property
-export const createProperty = (data) => Property.create(data);
-export const getPropertyById = (id) => Property.findById(id);
-export const getAllProperties = () => Property.find();
-export const updateProperty = (id, updates) => Property.findByIdAndUpdate(id, updates, { new: true });
-export const deleteProperty = (id) => Property.findByIdAndDelete(id);
+  const [documents, fees, invoices, attorneys, operators] = await Promise.all([
+    Document.find({ case_id: id }).lean(),
+    Fee.find({ case_id: id }).lean(),
+    Invoice.find({ case_id: id }).lean(),
+    User.find({ role: 'attorney' }).select('_id full_name').lean(),
+    User.find({ role: 'operations' }).select('_id full_name').lean(),
+  ]);
 
-// Tenant
-export const createTenant = (data) => Tenant.create(data);
-export const getTenantById = (id) => Tenant.findById(id);
-export const getAllTenants = () => Tenant.find();
-export const updateTenant = (id, updates) => Tenant.findByIdAndUpdate(id, updates, { new: true });
-export const deleteTenant = (id) => Tenant.findByIdAndDelete(id);
+  const statusOptions = CASE_STATUSES;
 
-// CaseRecord
-export const createCaseRecord = (data) => CaseRecord.create(data);
-export const getCaseRecordById = (id) => CaseRecord.findById(id);
-export const getAllCaseRecords = () => CaseRecord.find();
-export const updateCaseRecord = (id, updates) => CaseRecord.findByIdAndUpdate(id, updates, { new: true });
-export const deleteCaseRecord = (id) => CaseRecord.findByIdAndDelete(id);
+  return {
+    case: {
+      ...caseRecord,
+      documents,
+      fees,
+      invoices,
+    },
+    dropdowns: {
+      statusOptions,
+      attorneys,
+      operators,
+    },
+  };
+}
 
-// Document
-export const createDocument = (data) => Document.create(data);
-export const getDocumentById = (id) => Document.findById(id);
-export const getAllDocuments = () => Document.find();
-export const updateDocument = (id, updates) => Document.findByIdAndUpdate(id, updates, { new: true });
-export const deleteDocument = (id) => Document.findByIdAndDelete(id);
+async function createCaseRecord(data) {
+  return CaseRecord.create(data);
+}
 
-// Message
-export const createMessage = (data) => Message.create(data);
-export const getMessageById = (id) => Message.findById(id);
-export const getAllMessages = () => Message.find();
-export const updateMessage = (id, updates) => Message.findByIdAndUpdate(id, updates, { new: true });
-export const deleteMessage = (id) => Message.findByIdAndDelete(id);
+async function updateCaseRecord(id, updates) {
+  return CaseRecord.findByIdAndUpdate(id, updates, { new: true });
+}
 
-// Fee
-export const createFee = (data) => Fee.create(data);
-export const getFeeById = (id) => Fee.findById(id);
-export const getAllFees = () => Fee.find();
-export const updateFee = (id, updates) => Fee.findByIdAndUpdate(id, updates, { new: true });
-export const deleteFee = (id) => Fee.findByIdAndDelete(id);
+async function deleteCaseRecord(id) {
+  return CaseRecord.findByIdAndDelete(id); // For MVP phase
+  // return CaseRecord.findByIdAndUpdate(id, { is_deleted: true }, { new: true });
+}
 
-// Invoice
-export const createInvoice = (data) => Invoice.create(data);
-export const getInvoiceById = (id) => Invoice.findById(id);
-export const getAllInvoices = () => Invoice.find();
-export const updateInvoice = (id, updates) => Invoice.findByIdAndUpdate(id, updates, { new: true });
-export const deleteInvoice = (id) => Invoice.findByIdAndDelete(id);
+// --- USERS ---
+async function createUser(data) {
+  return User.create(data);
+}
 
-// ActivityLog
-export const createActivityLog = (data) => ActivityLog.create(data);
-export const getActivityLogById = (id) => ActivityLog.findById(id);
-export const getAllActivityLogs = () => ActivityLog.find();
-export const updateActivityLog = (id, updates) => ActivityLog.findByIdAndUpdate(id, updates, { new: true });
-export const deleteActivityLog = (id) => ActivityLog.findByIdAndDelete(id);
+async function getUserById(id) {
+  return User.findById(id).populate('client_id').lean();
+}
+
+async function getUserByEmail(email) {
+  return User.findOne({ email }).populate('client_id').lean();
+}
+
+async function getAllUsers() {
+  return User.find().populate('client_id').lean();
+}
+
+async function updateUser(id, updates) {
+  return User.findByIdAndUpdate(id, updates, { new: true })
+    .populate('client_id')
+    .lean();
+}
+
+async function deleteUser(id) {
+  return User.findByIdAndDelete(id); // For MVP phase
+  //   return User.findByIdAndUpdate(id, { is_deleted: true }, { new: true });
+}
+
+// --- PASSWORDS ---
+async function createPassword(data) {
+  return Password.create(data);
+}
+
+async function getPasswordByUserId(userId) {
+  return Password.findOne({ user_id: userId });
+}
+
+async function updatePassword(id, updates) {
+  return Password.findByIdAndUpdate(id, updates, { new: true });
+}
+
+async function deletePassword(id) {
+  return Password.findByIdAndDelete(id);
+}
+
+// --- REFRESH TOKENS ---
+async function createRefreshToken(data) {
+  return RefreshToken.create(data);
+}
+
+async function getRefreshTokenByUserId(userId) {
+  return RefreshToken.findOne({ user_id: userId });
+}
+
+async function updateRefreshTokenByUserId(userId, updates) {
+  return RefreshToken.findOneAndUpdate(
+    { user_id: userId },
+    { ...updates, updated_at: new Date() },
+    { new: true }
+  );
+}
+
+async function deleteRefreshToken(userId) {
+  return RefreshToken.findOneAndDelete({ user_id: userId });
+}
+
+// --- CLIENTS ---
+async function createClient(data) {
+  return Client.create(data);
+}
+
+async function getClientById(id) {
+  return Client.findById(id)
+    .populate('users', 'full_name email role') // or leave empty string for full object
+    .populate('management_companies.users', 'full_name email role')
+    .lean();
+}
+
+async function getAllClients() {
+  return Client.find()
+    .populate('users', 'full_name email role')
+    .populate('management_companies.users', 'full_name email role')
+    .lean();
+}
+
+async function updateClient(id, updates) {
+  return Client.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteClient(id) {
+  return Client.findByIdAndDelete(id); // For MVP phase
+  //   return Client.findByIdAndUpdate(id, { is_deleted: true }, { new: true }).lean();
+}
+
+// --- PROPERTIES ---
+async function createProperty(data) {
+  return Property.create(data);
+}
+
+async function getPropertyById(id) {
+  return Property.findById(id)
+    .populate('client_id')
+    .populate('management_company_id')
+    .populate('associated_tenants')
+    .lean();
+}
+
+async function getAllProperties() {
+  return Property.find()
+    .populate('client_id')
+    .populate('management_company_id')
+    .populate('associated_tenants')
+    .lean();
+}
+
+async function updateProperty(id, updates) {
+  return Property.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteProperty(id) {
+  return Property.findByIdAndDelete(id);
+}
+
+// --- TENANTS ---
+async function createTenant(data) {
+  return Tenant.create(data);
+}
+
+async function getTenantById(id) {
+  return Tenant.findById(id)
+    .populate('client_id')
+    .populate('associated_properties')
+    .lean();
+}
+
+async function getAllTenants() {
+  return Tenant.find()
+    .populate('client_id')
+    .populate('associated_properties')
+    .lean();
+}
+
+async function updateTenant(id, updates) {
+  return Tenant.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteTenant(id) {
+  return Tenant.findByIdAndDelete(id);
+}
+
+// --- DOCUMENTS ---
+async function createDocument(data) {
+  return Document.create(data);
+}
+
+async function getDocumentById(id) {
+  return Document.findById(id)
+    .populate('uploaded_by', 'full_name')
+    .populate('client_id')
+    .populate('case_id')
+    .lean();
+}
+
+async function getAllDocuments() {
+  return Document.find()
+    .populate('uploaded_by', 'full_name')
+    .populate('client_id')
+    .populate('case_id')
+    .lean();
+}
+
+async function updateDocument(id, updates) {
+  return Document.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteDocument(id) {
+  return Document.findByIdAndDelete(id);
+}
+
+// --- MESSAGES ---
+async function createMessage(data) {
+  return Message.create(data);
+}
+
+async function getMessageById(id) {
+  return Message.findById(id)
+    .populate('sender_id', 'full_name')
+    .populate('recipient_ids', 'full_name')
+    .populate('read_by', 'full_name')
+    .populate('case_id')
+    .lean();
+}
+
+async function getAllMessages() {
+  return Message.find()
+    .populate('sender_id', 'full_name')
+    .populate('recipient_ids', 'full_name')
+    .populate('read_by', 'full_name')
+    .populate('case_id')
+    .lean();
+}
+
+async function updateMessage(id, updates) {
+  return Message.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteMessage(id) {
+  return Message.findByIdAndDelete(id);
+}
+
+// --- FEE ---
+async function createFee(data) {
+  return Fee.create(data);
+}
+
+async function getFeeById(id) {
+  return Fee.findById(id).populate('client_id').populate('case_id').lean();
+}
+
+async function getAllFees() {
+  return Fee.find().populate('client_id').populate('case_id').lean();
+}
+
+async function updateFee(id, updates) {
+  return Fee.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteFee(id) {
+  return Fee.findByIdAndDelete(id);
+}
+
+// --- INVOICES ---
+async function createInvoice(data) {
+  return Invoice.create(data);
+}
+
+async function getInvoiceById(id) {
+  return Invoice.findById(id)
+    .populate('client_id')
+    .populate('case_id')
+    .populate('associated_fees')
+    .lean();
+}
+
+async function getAllInvoices() {
+  return Invoice.find()
+    .populate('client_id')
+    .populate('case_id')
+    .populate('associated_fees')
+    .lean();
+}
+
+async function updateInvoice(id, updates) {
+  return Invoice.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteInvoice(id) {
+  return Invoice.findByIdAndDelete(id);
+}
+
+// --- ACTIVITY LOGS ---
+async function createActivityLog(data) {
+  return ActivityLog.create(data);
+}
+
+async function getActivityLogById(id) {
+  return ActivityLog.findById(id).populate('user_id', 'full_name').lean();
+}
+
+async function getAllActivityLogs() {
+  return ActivityLog.find().populate('user_id', 'full_name').lean();
+}
+
+async function updateActivityLog(id, updates) {
+  return ActivityLog.findByIdAndUpdate(id, updates, { new: true }).lean();
+}
+
+async function deleteActivityLog(id) {
+  return ActivityLog.findByIdAndDelete(id);
+}
+
+export const caseReords = {
+  getCaseById,
+  getAllCases,
+  getCaseDetail,
+  createCaseRecord,
+  updateCaseRecord,
+  deleteCaseRecord,
+};
+export const users = {
+  createUser,
+  getUserById,
+  getUserByEmail,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+};
+export const passwords = {
+  createPassword,
+  getPasswordByUserId,
+  updatePassword,
+  deletePassword,
+};
+export const refreshTokens = {
+  createRefreshToken,
+  getRefreshTokenByUserId,
+  updateRefreshTokenByUserId,
+  deleteRefreshToken,
+};
+export const clients = {
+  createClient,
+  getClientById,
+  getAllClients,
+  updateClient,
+  deleteClient,
+};
+export const properties = {
+  createProperty,
+  getPropertyById,
+  getAllProperties,
+  updateProperty,
+  deleteProperty,
+};
+export const tenants = {
+  createTenant,
+  getTenantById,
+  getAllTenants,
+  updateTenant,
+  deleteTenant,
+};
+export const documents = {
+  createDocument,
+  getDocumentById,
+  getAllDocuments,
+  updateDocument,
+  deleteDocument,
+};
+export const messages = {
+  createMessage,
+  getMessageById,
+  getAllMessages,
+  updateMessage,
+  deleteMessage,
+};
+export const fees = {
+  createFee,
+  getFeeById,
+  getAllFees,
+  updateFee,
+  deleteFee,
+};
+export const invoices = {
+  createInvoice,
+  getInvoiceById,
+  getAllInvoices,
+  updateInvoice,
+  deleteInvoice,
+};
+export const activityLogs = {
+  createActivityLog,
+  getActivityLogById,
+  getAllActivityLogs,
+  updateActivityLog,
+  deleteActivityLog,
+};
+
+export const db = {
+  caseReords,
+  users,
+  passwords,
+  refreshTokens,
+  clients,
+  properties,
+  tenants,
+  documents,
+  messages,
+  fees,
+  invoices,
+  activityLogs,
+};
