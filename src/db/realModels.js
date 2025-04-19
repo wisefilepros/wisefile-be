@@ -11,6 +11,7 @@ import { Fee } from '../models/Fee.js';
 import { Invoice } from '../models/Invoice.js';
 import { ActivityLog } from '../models/ActivityLog.js';
 import { CASE_STATUSES } from '../utils/caseStatusOptions.js';
+import { format } from 'date-fns';
 
 // --- CASE RECORDS ---
 async function getCaseById(id) {
@@ -359,6 +360,55 @@ async function deleteActivityLog(id) {
   return ActivityLog.findByIdAndDelete(id);
 }
 
+// --- ANALYTICS ---
+
+export async function getAnalyticsSummaryForUser(user) {
+  const isAdmin = user.role === 'admin';
+
+  const caseFilters = isAdmin ? {} : { client_id: user.client_id };
+  const feeFilters = isAdmin ? {} : { client_id: user.client_id };
+
+  const [cases, fees, properties, clients] = await Promise.all([
+    CaseRecord.find(caseFilters).lean(),
+    Fee.find(feeFilters).lean(),
+    Property.find().lean(),
+    Client.find().lean()
+  ]);
+
+  const propertyMap = Object.fromEntries(properties.map(p => [p._id.toString(), p]));
+  const clientMap = Object.fromEntries(clients.map(c => [c._id.toString(), c]));
+  const caseMap = Object.fromEntries(cases.map(c => [c._id.toString(), c]));
+
+  const monthlyRevenue = {};
+  const fileAnalytics = [];
+
+  for (const fee of fees) {
+    const caseRecord = caseMap[fee.case_id?.toString()];
+    if (!caseRecord) continue;
+
+    const property = propertyMap[caseRecord.property_id?.toString()];
+    const client = clientMap[caseRecord.client_id?.toString()];
+
+    const month = format(new Date(fee.created_at), 'MMM');
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + fee.amount;
+
+    fileAnalytics.push({
+      caseNumber: caseRecord.case_number,
+      fileType: caseRecord.type?.charAt(0).toUpperCase() + caseRecord.type?.slice(1),
+      address: property?.formatted_address || 'N/A',
+      state: property?.state || 'N/A',
+      client: client?.display_name || 'N/A',
+      revenue: fee.amount,
+      month
+    });
+  }
+
+  return {
+    monthlyRevenue,
+    fileAnalytics
+  };
+}
+
 export const caseRecords = {
   getCaseById,
   getAllCases,
@@ -456,7 +506,7 @@ const realDb = {
   messages,
   fees,
   invoices,
-  activityLogs
+  activityLogs,
 };
 
 export default realDb;

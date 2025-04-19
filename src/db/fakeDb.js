@@ -118,6 +118,12 @@ const fakeDb = {
     updateActivityLog: (id, updates) => ({ _id: id, ...updates }),
     deleteActivityLog: (id) => ({ _id: id }),
   },
+  analytics: {
+    getAnalyticsSummaryForUser: () => ({
+      monthlyRevenue: { Jan: 0, Feb: 0 },
+      fileAnalytics: [],
+    }),
+  },
 };
 
 export default fakeDb;
