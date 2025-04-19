@@ -22,3 +22,16 @@ export const createRefreshToken = (user) => {
     { expiresIn: '7d' }
   );
 };
+
+export const setAuthCookies = (res, { refreshToken }) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  });
+};
+
+export const clearAuthCookies = (res) => {
+  res.clearCookie('refreshToken');
+};
