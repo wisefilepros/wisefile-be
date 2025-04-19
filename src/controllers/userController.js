@@ -15,7 +15,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const user = await db.getUserById(req.params.id);
+    const user = await db.users.getUserById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -34,20 +34,20 @@ export const createUser = async (req, res) => {
   }
 
   try {
-    const newUser = await db.createUser({
+    const newUser = await db.users.createUser({
       full_name,
       role,
       email,
       phone_number,
     });
 
-    // await logActivity({
-    //   user_id: req.user._id,
-    //   action: 'create',
-    //   entity_type: 'user',
-    //   entity_id: newUser._id,
-    //   details: `Created user ${newUser.full_name} (${newUser.role})`,
-    // });
+    await logActivity({
+      user_id: req.user._id,
+      action: 'create',
+      entity_type: 'user',
+      entity_id: newUser._id,
+      details: `Created user ${newUser.full_name} (${newUser.role})`,
+    });
 
     res.status(201).json(newUser);
   } catch (err) {
@@ -58,7 +58,7 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const updated = await db.updateUser(req.params.id, req.body);
+    const updated = await db.users.updateUser(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'User not found' });
 
     await logActivity({

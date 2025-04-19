@@ -14,7 +14,7 @@ export const getAllTenants = async (req, res) => {
 
 export const getTenantById = async (req, res) => {
   try {
-    const item = await db.getTenantById(req.params.id);
+    const item = await db.tenants.getTenantById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Tenant not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -24,7 +24,7 @@ export const getTenantById = async (req, res) => {
 
 export const createTenant = async (req, res) => {
   try {
-    const newItem = await db.createTenant(req.body);
+    const newItem = await db.tenants.createTenant(req.body);
     await logActivity({
       user_id: req.user._id,
       action: 'create',
@@ -40,7 +40,7 @@ export const createTenant = async (req, res) => {
 
 export const updateTenant = async (req, res) => {
   try {
-    const updated = await db.updateTenant(req.params.id, req.body);
+    const updated = await db.tenants.updateTenant(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Tenant not found' });
     await logActivity({
       user_id: req.user._id,
@@ -57,7 +57,7 @@ export const updateTenant = async (req, res) => {
 
 export const deleteTenant = async (req, res) => {
   try {
-    const deleted = await db.deleteTenant(req.params.id);
+    const deleted = await db.tenants.deleteTenant(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Tenant not found' });
     await logActivity({
       user_id: req.user._id,

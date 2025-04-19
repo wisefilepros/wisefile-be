@@ -14,7 +14,7 @@ export const getAllProperties = async (req, res) => {
 
 export const getPropertyById = async (req, res) => {
   try {
-    const item = await db.getPropertyById(req.params.id);
+    const item = await db.properties.getPropertyById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Property not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -24,7 +24,7 @@ export const getPropertyById = async (req, res) => {
 
 export const createProperty = async (req, res) => {
   try {
-    const newItem = await db.createProperty(req.body);
+    const newItem = await db.properties.createProperty(req.body);
     await logActivity({
       user_id: req.user._id,
       action: 'create',
@@ -40,7 +40,7 @@ export const createProperty = async (req, res) => {
 
 export const updateProperty = async (req, res) => {
   try {
-    const updated = await db.updateProperty(req.params.id, req.body);
+    const updated = await db.properties.updateProperty(req.params.id, req.body);
     if (!updated)
       return res.status(404).json({ message: 'Property not found' });
     await logActivity({
@@ -58,7 +58,7 @@ export const updateProperty = async (req, res) => {
 
 export const deleteProperty = async (req, res) => {
   try {
-    const deleted = await db.deleteProperty(req.params.id);
+    const deleted = await db.properties.deleteProperty(req.params.id);
     if (!deleted)
       return res.status(404).json({ message: 'Property not found' });
     await logActivity({

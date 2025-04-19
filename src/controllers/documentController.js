@@ -18,7 +18,7 @@ export const getAllDocuments = async (req, res) => {
 
 export const getDocumentById = async (req, res) => {
   try {
-    const item = await db.getDocumentById(req.params.id);
+    const item = await db.documents.getDocumentById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Document not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -50,7 +50,7 @@ export const createDocument = [
         file.mimetype
       );
 
-      const doc = await db.createDocument({
+      const doc = await db.documents.createDocument({
         case_id,
         client_id,
         name: name || file.originalname,
@@ -84,7 +84,7 @@ export const createDocument = [
 
 export const updateDocument = async (req, res) => {
   try {
-    const updated = await db.updateDocument(req.params.id, req.body);
+    const updated = await db.documents.updateDocument(req.params.id, req.body);
     if (!updated)
       return res.status(404).json({ message: 'Document not found' });
     await logActivity({
@@ -102,7 +102,7 @@ export const updateDocument = async (req, res) => {
 
 export const deleteDocument = async (req, res) => {
   try {
-    const document = await db.getDocumentById(req.params.id);
+    const document = await db.documents.getDocumentById(req.params.id);
     if (!document)
       return res.status(404).json({ message: 'Document not found' });
 
@@ -110,7 +110,7 @@ export const deleteDocument = async (req, res) => {
     await deleteFromS3(document.file_path);
 
     // Remove from DB
-    await db.deleteDocument(req.params.id);
+    await db.documents.deleteDocument(req.params.id);
 
     await logActivity({
       user_id: req.user._id,

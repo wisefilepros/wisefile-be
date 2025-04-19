@@ -14,7 +14,7 @@ export const getAllMessages = async (req, res) => {
 
 export const getMessageById = async (req, res) => {
   try {
-    const item = await db.getMessageById(req.params.id);
+    const item = await db.messages.getMessageById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Message not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -24,7 +24,7 @@ export const getMessageById = async (req, res) => {
 
 export const createMessage = async (req, res) => {
   try {
-    const newItem = await db.createMessage(req.body);
+    const newItem = await db.messages.createMessage(req.body);
     await logActivity({
       user_id: req.user._id,
       action: 'create',
@@ -40,7 +40,7 @@ export const createMessage = async (req, res) => {
 
 export const updateMessage = async (req, res) => {
   try {
-    const updated = await db.updateMessage(req.params.id, req.body);
+    const updated = await db.messages.updateMessage(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Message not found' });
     await logActivity({
       user_id: req.user._id,
@@ -57,7 +57,7 @@ export const updateMessage = async (req, res) => {
 
 export const deleteMessage = async (req, res) => {
   try {
-    const deleted = await db.deleteMessage(req.params.id);
+    const deleted = await db.messages.deleteMessage(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Message not found' });
     await logActivity({
       user_id: req.user._id,

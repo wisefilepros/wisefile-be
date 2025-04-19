@@ -25,7 +25,7 @@ export const getCaseDetail = async (req, res) => {
 export const createCaseRecord = async (req, res) => {
   try {
     const case_number = await generateCaseNumber(req.body.client_id);
-    const record = await db.createCaseRecord({
+    const record = await db.caseRecords.createCaseRecord({
       ...req.body,
       case_number,
     });
@@ -46,7 +46,7 @@ export const createCaseRecord = async (req, res) => {
 
 export const updateCaseRecord = async (req, res) => {
   try {
-    const updated = await db.updateCaseRecord(req.params.id, req.body);
+    const updated = await db.caseRecords.updateCaseRecord(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Case not found' });
 
     await logActivity({
@@ -65,7 +65,7 @@ export const updateCaseRecord = async (req, res) => {
 
 export const deleteCaseRecord = async (req, res) => {
   try {
-    const deleted = await db.deleteCaseRecord(req.params.id);
+    const deleted = await db.caseRecords.deleteCaseRecord(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Case not found' });
 
     await logActivity({

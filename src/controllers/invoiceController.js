@@ -14,7 +14,7 @@ export const getAllInvoices = async (req, res) => {
 
 export const getInvoiceById = async (req, res) => {
   try {
-    const item = await db.getInvoiceById(req.params.id);
+    const item = await db.invoices.getInvoiceById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Invoice not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -24,7 +24,7 @@ export const getInvoiceById = async (req, res) => {
 
 export const createInvoice = async (req, res) => {
   try {
-    const newItem = await db.createInvoice(req.body);
+    const newItem = await db.invoices.createInvoice(req.body);
     await logActivity({
       user_id: req.user._id,
       action: 'create',
@@ -40,7 +40,7 @@ export const createInvoice = async (req, res) => {
 
 export const updateInvoice = async (req, res) => {
   try {
-    const updated = await db.updateInvoice(req.params.id, req.body);
+    const updated = await db.invoices.updateInvoice(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Invoice not found' });
     await logActivity({
       user_id: req.user._id,
@@ -57,7 +57,7 @@ export const updateInvoice = async (req, res) => {
 
 export const deleteInvoice = async (req, res) => {
   try {
-    const deleted = await db.deleteInvoice(req.params.id);
+    const deleted = await db.invoices.deleteInvoice(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Invoice not found' });
     await logActivity({
       user_id: req.user._id,

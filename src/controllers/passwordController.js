@@ -10,17 +10,17 @@ export const createPassword = async (req, res) => {
       .json({ message: 'User ID and password are required.' });
   }
 
-  const user = await db.getUserById(user_id);
+  const user = await db.users.getUserById(user_id);
   if (!user) return res.status(404).json({ message: 'User not found.' });
 
-  const existing = await db.getPasswordByUserId(user_id);
+  const existing = await db.passwords.getPasswordByUserId(user_id);
   if (existing)
     return res
       .status(409)
       .json({ message: 'Password already set for this user.' });
 
   const hash = await bcrypt.hash(password, 10);
-  await db.createPassword({ user_id, hash });
+  await db.passwords.createPassword({ user_id, hash });
 
   res.status(201).json({ message: 'Password set successfully.' });
 };
@@ -34,7 +34,7 @@ export const resetPassword = async (req, res) => {
       .json({ message: 'User ID and new password are required.' });
   }
 
-  const user = await db.getUserById(user_id);
+  const user = await db.users.getUserById(user_id);
   if (!user) return res.status(404).json({ message: 'User not found.' });
 
   // Prevent resetting password for other roles unless you're admin or client
@@ -45,12 +45,12 @@ export const resetPassword = async (req, res) => {
   }
 
   const hash = await bcrypt.hash(new_password, 10);
-  const existing = await db.getPasswordByUserId(user_id);
+  const existing = await db.passwords.getPasswordByUserId(user_id);
 
   if (existing) {
-    await db.updatePassword(existing._id, { hash });
+    await db.passwords.updatePassword(existing._id, { hash });
   } else {
-    await db.createPassword({ user_id, hash });
+    await db.passwords.createPassword({ user_id, hash });
   }
 
   return res.sendStatus(204); // Password reset, no content
@@ -66,7 +66,7 @@ export const updateOwnPassword = async (req, res) => {
       .json({ message: 'Both current and new password are required.' });
   }
 
-  const passwordRecord = await db.getPasswordByUserId(user_id);
+  const passwordRecord = await db.passwords.getPasswordByUserId(user_id);
   if (!passwordRecord) {
     return res.status(404).json({ message: 'Password not set for this user.' });
   }
@@ -77,7 +77,7 @@ export const updateOwnPassword = async (req, res) => {
   }
 
   const newHash = await bcrypt.hash(new_password, 10);
-  await db.updatePassword(passwordRecord._id, { hash: newHash });
+  await db.passwords.updatePassword(passwordRecord._id, { hash: newHash });
 
   res.status(200).json({ message: 'Password updated successfully.' });
 };

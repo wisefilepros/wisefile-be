@@ -4,7 +4,7 @@ import { generateClientCode } from '../utils/generators.js';
 
 export const getAllClient = async (req, res) => {
   try {
-    const items = await db.getAllClients();
+    const items = await db.clients.getAllClients();
     res.status(200).json(items);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch clients' });
@@ -13,7 +13,7 @@ export const getAllClient = async (req, res) => {
 
 export const getClientById = async (req, res) => {
   try {
-    const item = await db.getClientById(req.params.id);
+    const item = await db.clients.getClientById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Client not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -25,11 +25,11 @@ export const createClient = async (req, res) => {
   try {
     const { legal_name, ...rest } = req.body;
 
-    const allClients = await db.getAllClients();
+    const allClients = await db.clients.getAllClients();
     const existingCodes = allClients.map((c) => c.client_code).filter(Boolean);
     const client_code = generateClientCode(legal_name, existingCodes);
 
-    const newClient = await db.createClient({
+    const newClient = await db.clients.createClient({
       legal_name,
       client_code,
       ...rest,
@@ -52,7 +52,7 @@ export const createClient = async (req, res) => {
 
 export const updateClient = async (req, res) => {
   try {
-    const updated = await db.updateClient(req.params.id, req.body);
+    const updated = await db.clients.updateClient(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Client not found' });
     await logActivity({
       user_id: req.user._id,
@@ -69,7 +69,7 @@ export const updateClient = async (req, res) => {
 
 export const deleteClient = async (req, res) => {
   try {
-    const deleted = await db.deleteClient(req.params.id);
+    const deleted = await db.clients.deleteClient(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Client not found' });
     await logActivity({
       user_id: req.user._id,

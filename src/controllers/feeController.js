@@ -3,7 +3,7 @@ import { logActivity } from '../utils/logActivity.js';
 
 export const getAllFee = async (req, res) => {
   try {
-    const items = await db.getAllFees();
+    const items = await db.fees.getAllFees();
     res.status(200).json(items);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch fees' });
@@ -12,7 +12,7 @@ export const getAllFee = async (req, res) => {
 
 export const getFeeById = async (req, res) => {
   try {
-    const item = await db.getFeeById(req.params.id);
+    const item = await db.fees.getFeeById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Fee not found' });
     res.status(200).json(item);
   } catch (err) {
@@ -22,7 +22,7 @@ export const getFeeById = async (req, res) => {
 
 export const createFee = async (req, res) => {
   try {
-    const newItem = await db.createFee(req.body);
+    const newItem = await db.fees.createFee(req.body);
     await logActivity({
       user_id: req.user._id,
       action: 'create',
@@ -38,7 +38,7 @@ export const createFee = async (req, res) => {
 
 export const updateFee = async (req, res) => {
   try {
-    const updated = await db.updateFee(req.params.id, req.body);
+    const updated = await db.fees.updateFee(req.params.id, req.body);
     if (!updated) return res.status(404).json({ message: 'Fee not found' });
     await logActivity({
       user_id: req.user._id,
@@ -55,7 +55,7 @@ export const updateFee = async (req, res) => {
 
 export const deleteFee = async (req, res) => {
   try {
-    const deleted = await db.deleteFee(req.params.id);
+    const deleted = await db.fees.deleteFee(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Fee not found' });
     await logActivity({
       user_id: req.user._id,
