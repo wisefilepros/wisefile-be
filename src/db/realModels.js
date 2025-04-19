@@ -296,6 +296,24 @@ async function updateMessage(id, updates) {
   return Message.findByIdAndUpdate(id, updates, { new: true }).lean();
 }
 
+async function markMessageAsRead(id, userId) {
+  return Message.findByIdAndUpdate(
+    id,
+    { $addToSet: { read_by: userId } },
+    { new: true }
+  );
+}
+
+async function markMessagesAsRead(messageIds, userId) {
+  return Message.updateMany(
+    {
+      _id: { $in: messageIds },
+      read_by: { $ne: userId },
+    },
+    { $addToSet: { read_by: userId } }
+  );
+}
+
 async function deleteMessage(id) {
   return Message.findByIdAndDelete(id);
 }
@@ -487,6 +505,8 @@ export const messages = {
   getMessagesByQuery,
   getAllMessages,
   updateMessage,
+  markMessageAsRead,
+  markMessagesAsRead,
   deleteMessage,
 };
 export const fees = {

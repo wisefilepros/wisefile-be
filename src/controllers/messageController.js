@@ -17,7 +17,9 @@ export const getMessagesByQuery = async (req, res) => {
     const { case_id } = req.query;
 
     if (!case_id) {
-      return res.status(400).json({ message: 'Missing case_id query parameter' });
+      return res
+        .status(400)
+        .json({ message: 'Missing case_id query parameter' });
     }
 
     const messages = await db.messages.getMessagesForCase(case_id);
@@ -69,6 +71,55 @@ export const updateMessage = async (req, res) => {
     res.status(200).json(updated);
   } catch (err) {
     res.status(500).json({ message: 'Failed to update message' });
+  }
+};
+
+export const markMessageAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const message = await db.messages.getMessageById(id);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+
+    const alreadyRead = message.read_by?.some(
+      (reader) => reader.toString?.() === userId.toString()
+    );
+
+    if (!alreadyRead) {
+      const updated = await db.messages.updateMessage(id, {
+        $addToSet: { read_by: userId },
+      });
+
+      return res.status(200).json(updated);
+    }
+
+    res.status(204).end(); // No content — already read
+  } catch (err) {
+    console.error('Error marking message as read:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const markMultipleMessagesAsRead = async (req, res) => {
+  try {
+    const { messageIds } = req.body;
+    const userId = req.user._id;
+
+    if (!Array.isArray(messageIds) || messageIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: 'messageIds must be a non-empty array' });
+    }
+
+    await db.messages.markMessagesAsRead(messageIds, userId);
+
+    res.status(204).end(); // No content, success
+  } catch (err) {
+    console.error('Batch mark-read failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

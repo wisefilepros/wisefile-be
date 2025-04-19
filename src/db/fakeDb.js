@@ -94,11 +94,31 @@ const fakeDb = {
     }),
     getMessageById: (id) => ({ _id: id }),
     getAllMessages: () => [],
-    getMessagesForCase: (caseId) =>
+    getMessagesByQuery: (caseId) =>
       fakeDb.messages
         .getAllMessages()
         .filter((m) => m.case_id === caseId && m.visible_to_users !== false),
     updateMessage: (id, updates) => ({ _id: id, ...updates }),
+    markMessageAsRead: (id, userId) => {
+      const msg = messages.find((m) => m._id === id);
+      if (!msg) return null;
+      if (!msg.read_by.includes(userId)) {
+        msg.read_by.push(userId);
+      }
+      return msg;
+    },
+    markMessagesAsRead: (messageIds, userId) => {
+      return messageIds
+        .map((id) => {
+          const msg = messages.find((m) => m._id === id);
+          if (!msg) return null;
+          if (!msg.read_by.includes(userId)) {
+            msg.read_by.push(userId);
+          }
+          return msg;
+        })
+        .filter(Boolean);
+    },
     deleteMessage: (id) => ({ _id: id }),
   },
   fees: {
