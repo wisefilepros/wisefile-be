@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
+import { connectToMongo } from './config/connectToMongo.js';
+import { initAdminUser } from './config/initAdminUser.js';
+import { db } from './db/index.js'; // so we can log which db is used
 
 // Route Imports
 import userRoutes from './routes/userRoutes.js';
@@ -19,6 +22,7 @@ import invoiceRoutes from './routes/invoiceRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import activityLogRoutes from './routes/activityLogRoutes.js';
 import utilsRoutes from './routes/utilsRoutes.js';
+import healthRoutes from './routes/health.js';
 
 const app = express();
 
@@ -52,12 +56,26 @@ app.use('/api/fees', feeRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
-// Utility Routes
 app.use('/api/utils', utilsRoutes);
+app.use('/api/health', healthRoutes);
 
 // Start server
-app.listen(config.port, () => {
-  console.log(
-    `🚀 Server running at http://localhost:${config.port} in ${config.env} mode`
-  );
-});
+const startServer = async () => {
+  if (config.mongoUri) {
+    await connectToMongo();
+  }
+
+  await initAdminUser(); // <-- Always run, even in fakeDb mode
+
+  app.listen(config.port, () => {
+    console.log(
+      `Server running at http://localhost:${config.port} in ${config.env} mode`
+    );
+
+    console.log(
+      `DB connected: ${config.mongoUri ? 'realDb (Mongo)' : 'fakeDb'}`
+    );
+  });
+};
+
+startServer();
