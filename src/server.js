@@ -28,7 +28,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: 'https://wisefile-fe.pages.dev',
+    origin: 'https://wisefile.vercel.app',
     credentials: true,
   })
 );
