@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import { connectToMongo } from './config/connecToMongo.js';
 import { initAdminUser } from './config/initAdminUser.js';
-import { db } from './db/index.js';
 
 // Route Imports
 import userRoutes from './routes/userRoutes.js';

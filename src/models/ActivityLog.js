@@ -4,7 +4,7 @@ import { createSchema } from './baseSchema.js';
 const ActivityLogDefinition = {
   entity_id: { type: String, required: true },
   entity_type: { type: String, required: true },
-  action_type: { type: String, required: true },
+  action_type: { type: String},
   action: { type: String, required: true },
   details: { type: String, default: '' },
   user_id: {

@@ -3,16 +3,16 @@ import { db } from '../db/index.js';
 // Document filtering
 export const getDocumentsForUser = async (user) => {
   if (user.role === 'admin') {
-    return db.getAllDocuments();
+    return db.documents.getAllDocuments();
   }
 
-  const allDocs = await db.getAllDocuments();
+  const allDocs = await db.documents.getAllDocuments();
 
   if (user.role === 'client') {
     return allDocs.filter((doc) => doc.client_id === user.client_id);
   }
 
-  const cases = await db.getAllCaseRecords();
+  const cases = await db.caseRecords.getAllCases();
   const userCaseIds = cases
     .filter(
       (c) =>
@@ -27,17 +27,17 @@ export const getDocumentsForUser = async (user) => {
 // Invoice filtering (no attorneys)
 export const getInvoicesForUser = async (user) => {
   if (user.role === 'admin') {
-    return db.getAllInvoices();
+    return db.invoices.getAllInvoices();
   }
 
-  const allInvoices = await db.getAllInvoices();
+  const allInvoices = await db.invoices.getAllInvoices();
 
   if (user.role === 'client') {
     return allInvoices.filter((inv) => inv.client_id === user.client_id);
   }
 
   if (user.role === 'operations') {
-    const cases = await db.getAllCaseRecords();
+    const cases = await db.caseRecords.getAllCases();
     const caseIds = cases
       .filter((c) => c.operator_id === user._id)
       .map((c) => c._id);
@@ -49,7 +49,7 @@ export const getInvoicesForUser = async (user) => {
 
 // CaseRecord filtering
 export const getCaseRecordsForUser = async (user) => {
-  const allCases = await db.getAllCaseRecords();
+  const allCases = await db.caseRecords.getAllCases();
 
   if (user.role === 'admin') return allCases;
   if (user.role === 'client')
@@ -64,7 +64,7 @@ export const getCaseRecordsForUser = async (user) => {
 
 // Message filtering
 export const getMessagesForUser = async (user) => {
-  const allMessages = await db.getAllMessages();
+  const allMessages = await db.messages.getAllMessages();
 
   if (user.role === 'admin') return allMessages;
   return allMessages.filter((msg) => msg.recipient_ids.includes(user._id));
@@ -72,7 +72,7 @@ export const getMessagesForUser = async (user) => {
 
 // User filtering
 export const getUsersForUser = async (user) => {
-  const allUsers = await db.getAllUsers();
+  const allUsers = await db.users.getAllUsers();
 
   if (user.role === 'admin') return allUsers;
   if (user.role === 'client')
@@ -83,7 +83,7 @@ export const getUsersForUser = async (user) => {
 
 // Property filtering (admin + client only)
 export const getPropertiesForUser = async (user) => {
-  const allProps = await db.getAllProperties();
+  const allProps = await db.properties.getAllProperties();
 
   if (user.role === 'admin') return allProps;
   if (user.role === 'client')
@@ -94,7 +94,7 @@ export const getPropertiesForUser = async (user) => {
 
 // Tenant filtering (admin + client only)
 export const getTenantsForUser = async (user) => {
-  const allTenants = await db.getAllTenants();
+  const allTenants = await db.tenants.getAllTenants();
 
   if (user.role === 'admin') return allTenants;
   if (user.role === 'client')
@@ -105,12 +105,12 @@ export const getTenantsForUser = async (user) => {
 
 // Activity Log filtering
 export const getActivityLogsForUser = async (user) => {
-  const allLogs = await db.getAllActivityLogs();
+  const allLogs = await db.activityLogs.getAllActivityLogs();
 
   if (user.role === 'admin') return allLogs;
 
   if (user.role === 'operations') {
-    const cases = await db.getAllCaseRecords();
+    const cases = await db.caseRecords.getAllCaseRecords();
     const caseIds = cases
       .filter((c) => c.operator_id === user._id)
       .map((c) => c._id);
@@ -124,32 +124,32 @@ export const getActivityLogsForUser = async (user) => {
   }
 
   if (user.role === 'client') {
-    const allUsers = await db.getAllUsers();
+    const allUsers = await db.users.getAllUsers();
     const userIds = allUsers
       .filter((u) => u.client_id === user.client_id)
       .map((u) => u._id);
 
-    const allCases = await db.getAllCaseRecords();
+    const allCases = await db.caseRecords.getAllCases();
     const caseIds = allCases
       .filter((c) => c.client_id === user.client_id)
       .map((c) => c._id);
 
-    const allProps = await db.getAllProperties();
+    const allProps = await db.properties.getAllProperties();
     const propIds = allProps
       .filter((p) => p.client_id === user.client_id)
       .map((p) => p._id);
 
-    const allTenants = await db.getAllTenants();
+    const allTenants = await db.tenants.getAllTenants();
     const tenantIds = allTenants
       .filter((t) => t.client_id === user.client_id)
       .map((t) => t._id);
 
-    const allDocs = await db.getAllDocuments();
+    const allDocs = await db.documents.getAllDocuments();
     const docIds = allDocs
       .filter((d) => d.client_id === user.client_id)
       .map((d) => d._id);
 
-    const allInvoices = await db.getAllInvoices();
+    const allInvoices = await db.invoices.getAllInvoices();
     const invoiceIds = allInvoices
       .filter((i) => i.client_id === user.client_id)
       .map((i) => i._id);

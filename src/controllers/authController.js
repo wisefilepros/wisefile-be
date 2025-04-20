@@ -42,7 +42,6 @@ export const registerUser = async (req, res) => {
     logActivity({
       entity_id: newUser._id,
       entity_type: 'user',
-      action_type: 'create',
       action: `Created user ${full_name}`,
       user_id: req.user?._id || newUser._id,
     });
@@ -76,17 +75,12 @@ export const loginUser = async (req, res) => {
       token: tokens.refreshToken,
     });
 
-    setAuthCookies(res, { refreshToken: tokens.refreshToken });
-
-    logActivity({
-      entity_id: user._id,
-      entity_type: 'user',
-      action_type: 'login',
-      action: 'User logged in',
-      user_id: user._id,
+    setAuthCookies(res, {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     });
 
-    res.json({ accessToken: tokens.accessToken, user });
+    res.json({ user });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed.' });

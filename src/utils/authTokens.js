@@ -23,14 +23,24 @@ export const createRefreshToken = (user) => {
   );
 };
 
-export const setAuthCookies = (res, { refreshToken }) => {
-  res.cookie('refreshToken', refreshToken, {
+export function setAuthCookies(res, { accessToken, refreshToken }) {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Strict',
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    sameSite: 'Lax',
+    path: '/', // Important for cookie to be accessible on all routes
+  };
+
+  res.cookie('accessToken', accessToken, {
+    ...cookieOptions,
+    maxAge: 60 * 60 * 1000, // 1 hour
   });
-};
+
+  res.cookie('refreshToken', refreshToken, {
+    ...cookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+}
 
 export const clearAuthCookies = (res) => {
   res.clearCookie('refreshToken');

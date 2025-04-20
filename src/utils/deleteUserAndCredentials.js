@@ -5,15 +5,15 @@ export const deleteUserAndCredentials = async (userId, actorUserId) => {
   const deleted = await db.deleteUser(userId);
   if (!deleted) return false;
 
-  await db.deletePassword(userId);
-  await db.deleteRefreshToken(userId);
+  await db.passwords.deletePassword(userId);
+  await db.refreshTokens.deleteRefreshToken(userId);
 
   await logActivity({
     user_id: actorUserId,
     action: 'delete',
     entity_type: 'user',
     entity_id: userId,
-    details: `Deleted user ${userId} and their credentials`
+    details: `Deleted user ${userId} and their credentials`,
   });
 
   return true;
