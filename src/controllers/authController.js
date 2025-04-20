@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { logActivity } from '../utils/logActivity.js';
 import {
   createAccessToken,
   createRefreshToken,
@@ -38,13 +37,6 @@ export const registerUser = async (req, res) => {
     });
     const hash = await bcrypt.hash(password, 10);
     await db.passwords.createPassword({ user_id: newUser._id, hash });
-
-    logActivity({
-      entity_id: newUser._id,
-      entity_type: 'user',
-      action: `Created user ${full_name}`,
-      user_id: req.user?._id || newUser._id,
-    });
 
     res.status(201).json({ message: 'User registered.', user: newUser });
   } catch (err) {
