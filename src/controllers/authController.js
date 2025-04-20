@@ -117,7 +117,6 @@ export const refreshToken = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
     clearAuthCookies(res);
-    await db.refreshTokens.deleteRefreshToken(req.user._id);
     res.json({ message: 'Logged out.' });
   } catch (err) {
     console.error('Logout error:', err);
