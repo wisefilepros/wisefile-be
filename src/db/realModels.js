@@ -70,8 +70,18 @@ async function createCaseRecord(data) {
   return CaseRecord.create(data);
 }
 
-async function updateCaseRecord(id, updates) {
-  return CaseRecord.findByIdAndUpdate(id, updates, { new: true });
+export async function updateCaseRecord(id, updates) {
+  const caseRecord = await CaseRecord.findById(id);
+  if (!caseRecord) return null;
+
+  if (updates.internal_notes && Array.isArray(updates.internal_notes)) {
+    caseRecord.internal_notes.push(...updates.internal_notes);
+    delete updates.internal_notes; // Prevent overwrite below
+  }
+
+  Object.assign(caseRecord, updates);
+  await caseRecord.save();
+  return caseRecord;
 }
 
 async function deleteCaseRecord(id) {
