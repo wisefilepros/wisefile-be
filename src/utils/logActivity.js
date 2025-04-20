@@ -2,7 +2,7 @@ import { db } from '../db/index.js';
 
 export const logActivity = async ({ user_id, action, entity_type, entity_id, details }) => {
   try {
-    await db.createActivityLog({
+    await db.activityLogs.createActivityLog({
       user_id,
       action,
       entity_type,

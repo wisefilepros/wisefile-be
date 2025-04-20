@@ -31,12 +31,12 @@ export const createSchema = (definition, options = {}) => {
   });
 
   // Soft delete middleware: filters out is_deleted by default
-  schema.pre(/^find/, function (next) {
-    if (!this.getQuery().hasOwnProperty('is_deleted')) {
-      this.where({ is_deleted: false });
-    }
-    next();
-  });
+  // schema.pre(/^find/, function (next) {
+  //   if (!this.getQuery().hasOwnProperty('is_deleted')) {
+  //     this.where({ is_deleted: false });
+  //   }
+  //   next();
+  // });
 
   return schema;
 };
