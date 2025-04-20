@@ -26,9 +26,9 @@ export const createRefreshToken = (user) => {
 export function setAuthCookies(res, { accessToken, refreshToken }) {
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Lax',
-    path: '/', // Important for cookie to be accessible on all routes
+    secure: true, 
+    sameSite: 'None',
+    path: '/',
   };
 
   res.cookie('accessToken', accessToken, {
