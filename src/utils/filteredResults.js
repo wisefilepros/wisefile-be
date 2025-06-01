@@ -72,6 +72,7 @@ export const getMessagesForUser = async (user) => {
 
 // User filtering
 export const getUsersForUser = async (user) => {
+  console.log(user)
   const allUsers = await db.users.getAllUsers();
 
   if (user.role === 'admin') return allUsers;
