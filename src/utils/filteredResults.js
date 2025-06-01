@@ -73,10 +73,36 @@ export const getMessagesForUser = async (user) => {
 // User filtering
 export const getUsersForUser = async (user) => {
   const allUsers = await db.users.getAllUsers();
+
   if (user.role === 'admin') return allUsers;
-  if (user.role === 'client')
-    return allUsers.filter((u) => u.client_id._id === user.client_id._id);
-  console.log('Users:', allUsers)
+
+  if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id._id : user.client_id;
+
+    return allUsers.filter((u) => {
+      // Defensive check
+      if (!u.client_id || typeof u.client_id !== 'object' || !u.client_id._id)
+        return false;
+
+      // Ensure both sides are strings before comparing
+      return String(u.client_id._id) === String(clientId);
+    });
+  }
+
+  console.log('🔍 Matching clientId:', clientId);
+  console.log(
+    '👥 Matched users:',
+    allUsers.filter((u) => {
+
+      if (!u.client_id || typeof u.client_id !== 'object' || !u.client_id._id)
+        return false;
+
+
+      return String(u.client_id._id) === String(clientId);
+    }).map((u) => ({ name: u.full_name, id: u._id }))
+  );
+
   return [];
 };
 
