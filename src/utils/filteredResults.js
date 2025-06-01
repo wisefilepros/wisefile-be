@@ -75,8 +75,16 @@ export const getUsersForUser = async (user) => {
   const allUsers = await db.users.getAllUsers();
 
   if (user.role === 'admin') return allUsers;
-  if (user.role === 'client')
-    return allUsers.filter((u) => u.client_id === user.client_id);
+
+  if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id._id : user.client_id;
+    return allUsers.filter((u) => {
+      const uClientId =
+        typeof u.client_id === 'object' ? u.client_id._id : u.client_id;
+      return uClientId === clientId;
+    });
+  }
 
   return [];
 };
