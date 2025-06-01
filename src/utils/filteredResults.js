@@ -2,14 +2,18 @@ import { db } from '../db/index.js';
 
 // Document filtering
 export const getDocumentsForUser = async (user) => {
-  if (user.role === 'admin') {
-    return db.documents.getAllDocuments();
-  }
+  if (user.role === 'admin') return db.documents.getAllDocuments();
 
   const allDocs = await db.documents.getAllDocuments();
 
   if (user.role === 'client') {
-    return allDocs.filter((doc) => doc.client_id === user.client_id);
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+    return allDocs.filter((doc) => {
+      const dClient = doc?.client_id;
+      if (!dClient || typeof dClient !== 'object' || !dClient._id) return false;
+      return String(dClient._id) === String(clientId);
+    });
   }
 
   const cases = await db.caseRecords.getAllCases();
@@ -26,14 +30,18 @@ export const getDocumentsForUser = async (user) => {
 
 // Invoice filtering (no attorneys)
 export const getInvoicesForUser = async (user) => {
-  if (user.role === 'admin') {
-    return db.invoices.getAllInvoices();
-  }
+  if (user.role === 'admin') return db.invoices.getAllInvoices();
 
   const allInvoices = await db.invoices.getAllInvoices();
 
   if (user.role === 'client') {
-    return allInvoices.filter((inv) => inv.client_id === user.client_id);
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+    return allInvoices.filter((inv) => {
+      const iClient = inv?.client_id;
+      if (!iClient || typeof iClient !== 'object' || !iClient._id) return false;
+      return String(iClient._id) === String(clientId);
+    });
   }
 
   if (user.role === 'operations') {
@@ -52,8 +60,15 @@ export const getCaseRecordsForUser = async (user) => {
   const allCases = await db.caseRecords.getAllCases();
 
   if (user.role === 'admin') return allCases;
-  if (user.role === 'client')
-    return allCases.filter((c) => c.client_id === user.client_id);
+  if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+    return allCases.filter((c) => {
+      const cClient = c?.client_id;
+      if (!cClient || typeof cClient !== 'object' || !cClient._id) return false;
+      return String(cClient._id) === String(clientId);
+    });
+  }
   if (user.role === 'operations')
     return allCases.filter((c) => c.operator_id === user._id);
   if (user.role === 'attorney')
@@ -98,8 +113,15 @@ export const getPropertiesForUser = async (user) => {
   const allProps = await db.properties.getAllProperties();
 
   if (user.role === 'admin') return allProps;
-  if (user.role === 'client')
-    return allProps.filter((p) => p.client_id === user.client_id);
+  if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+    return allProps.filter((p) => {
+      const pClient = p?.client_id;
+      if (!pClient || typeof pClient !== 'object' || !pClient._id) return false;
+      return String(pClient._id) === String(clientId);
+    });
+  }
 
   return [];
 };
@@ -109,8 +131,15 @@ export const getTenantsForUser = async (user) => {
   const allTenants = await db.tenants.getAllTenants();
 
   if (user.role === 'admin') return allTenants;
-  if (user.role === 'client')
-    return allTenants.filter((t) => t.client_id === user.client_id);
+  if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+    return allTenants.filter((t) => {
+      const tClient = t?.client_id;
+      if (!tClient || typeof tClient !== 'object' || !tClient._id) return false;
+      return String(tClient._id) === String(clientId);
+    });
+  }
 
   return [];
 };
@@ -136,34 +165,67 @@ export const getActivityLogsForUser = async (user) => {
   }
 
   if (user.role === 'client') {
+    const clientId =
+      typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
+
     const allUsers = await db.users.getAllUsers();
     const userIds = allUsers
-      .filter((u) => u.client_id === user.client_id)
+      .filter((u) => {
+        const uClient = u?.client_id;
+        if (!uClient || typeof uClient !== 'object' || !uClient._id)
+          return false;
+        return String(uClient._id) === String(clientId);
+      })
       .map((u) => u._id);
 
     const allCases = await db.caseRecords.getAllCases();
     const caseIds = allCases
-      .filter((c) => c.client_id === user.client_id)
+      .filter((c) => {
+        const cClient = c?.client_id;
+        if (!cClient || typeof cClient !== 'object' || !cClient._id)
+          return false;
+        return String(cClient._id) === String(clientId);
+      })
       .map((c) => c._id);
 
     const allProps = await db.properties.getAllProperties();
     const propIds = allProps
-      .filter((p) => p.client_id === user.client_id)
+      .filter((p) => {
+        const pClient = p?.client_id;
+        if (!pClient || typeof pClient !== 'object' || !pClient._id)
+          return false;
+        return String(pClient._id) === String(clientId);
+      })
       .map((p) => p._id);
 
     const allTenants = await db.tenants.getAllTenants();
     const tenantIds = allTenants
-      .filter((t) => t.client_id === user.client_id)
+      .filter((t) => {
+        const tClient = t?.client_id;
+        if (!tClient || typeof tClient !== 'object' || !tClient._id)
+          return false;
+        return String(tClient._id) === String(clientId);
+      })
       .map((t) => t._id);
 
     const allDocs = await db.documents.getAllDocuments();
     const docIds = allDocs
-      .filter((d) => d.client_id === user.client_id)
+      .filter((d) => {
+        const dClient = d?.client_id;
+        if (!dClient || typeof dClient !== 'object' || !dClient._id)
+          return false;
+        return String(dClient._id) === String(clientId);
+      })
       .map((d) => d._id);
 
     const allInvoices = await db.invoices.getAllInvoices();
     const invoiceIds = allInvoices
-      .filter((i) => i.client_id === user.client_id)
+      .filter((i) => {
+        const iClient = i?.client_id;
+        if (!iClient || typeof iClient !== 'object' || !iClient._id)
+          return false;
+        return String(iClient._id) === String(clientId);
+      })
       .map((i) => i._id);
 
     return allLogs.filter(
