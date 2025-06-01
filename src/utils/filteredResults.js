@@ -76,6 +76,7 @@ export const getUsersForUser = async (user) => {
   if (user.role === 'admin') return allUsers;
   if (user.role === 'client')
     return allUsers.filter((u) => u.client_id._id === user.client_id._id);
+  console.log('Users:', allUsers)
   return [];
 };
 
