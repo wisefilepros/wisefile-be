@@ -73,7 +73,7 @@ export const getMessagesForUser = async (user) => {
 // User filtering
 export const getUsersForUser = async (user) => {
   const allUsers = await db.users.getAllUsers();
-
+  console.log(allUsers)
   if (user.role === 'admin') return allUsers;
   if (user.role === 'client')
     return allUsers.filter((u) => u.client_id === user.client_id._id);
