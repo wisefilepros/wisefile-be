@@ -81,27 +81,14 @@ export const getUsersForUser = async (user) => {
       typeof user.client_id === 'object' ? user.client_id._id : user.client_id;
 
     return allUsers.filter((u) => {
-      // Defensive check
-      if (!u.client_id || typeof u.client_id !== 'object' || !u.client_id._id)
-        return false;
+      const uClient = u?.client_id;
 
-      // Ensure both sides are strings before comparing
-      return String(u.client_id._id) === String(clientId);
+      // Skip if client_id is missing or not an object
+      if (!uClient || typeof uClient !== 'object' || !uClient._id) return false;
+
+      return String(uClient._id) === String(clientId);
     });
   }
-
-  console.log('🔍 Matching clientId:', clientId);
-  console.log(
-    '👥 Matched users:',
-    allUsers.filter((u) => {
-
-      if (!u.client_id || typeof u.client_id !== 'object' || !u.client_id._id)
-        return false;
-
-
-      return String(u.client_id._id) === String(clientId);
-    }).map((u) => ({ name: u.full_name, id: u._id }))
-  );
 
   return [];
 };
