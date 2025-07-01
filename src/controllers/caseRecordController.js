@@ -30,7 +30,7 @@ export const createCaseRecord = async (req, res) => {
       return res.status(400).json({ message: 'Invalid client_id provided' });
     }
 
-    // 2. Fetch existing case numbers for this client
+    // 🔁 2. Fetch existing case numbers for this client
     const existing = await db.caseRecords.findMany({
       client_id: req.body.client_id,
       is_temporary: false,
@@ -38,13 +38,13 @@ export const createCaseRecord = async (req, res) => {
     });
     const existing_case_numbers = existing.map((c) => c.case_number);
 
-    // 3. Generate the correct case number using client_code
+    // 🔁 3. Generate the correct case number using client_code
     const case_number = generateCaseNumber(
       client.client_code,
       existing_case_numbers
     );
 
-    // 4. Create the case
+    // 🔁 4. Create the case
     const record = await db.caseRecords.createCaseRecord({
       ...req.body,
       case_number,

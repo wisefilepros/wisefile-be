@@ -89,6 +89,10 @@ async function deleteCaseRecord(id) {
   // return CaseRecord.findByIdAndUpdate(id, { is_deleted: true }, { new: true });
 }
 
+async function findMany(filter) {
+  return CaseRecord.find(filter).lean();
+}
+
 // --- USERS ---
 async function createUser(data) {
   return User.create(data);
@@ -460,6 +464,7 @@ export const caseRecords = {
   createCaseRecord,
   updateCaseRecord,
   deleteCaseRecord,
+  findMany,
 };
 export const users = {
   createUser,
