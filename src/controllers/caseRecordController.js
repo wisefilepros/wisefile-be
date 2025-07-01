@@ -40,13 +40,19 @@ export const createCaseRecord = async (req, res) => {
 
     res.status(201).json(record);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to create case record' });
+    console.error('🔥 Error creating case record:', err);
+    res
+      .status(500)
+      .json({ message: 'Failed to create case record', error: err.message });
   }
 };
 
 export const updateCaseRecord = async (req, res) => {
   try {
-    const updated = await db.caseRecords.updateCaseRecord(req.params.id, req.body);
+    const updated = await db.caseRecords.updateCaseRecord(
+      req.params.id,
+      req.body
+    );
     if (!updated) return res.status(404).json({ message: 'Case not found' });
 
     await logActivity({
