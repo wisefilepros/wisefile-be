@@ -24,7 +24,27 @@ export const getCaseDetail = async (req, res) => {
 
 export const createCaseRecord = async (req, res) => {
   try {
-    const case_number = await generateCaseNumber(req.body.client_id);
+    // 1. Fetch the client to get its client_code
+    const client = await db.clients.getClientById(req.body.client_id);
+    if (!client) {
+      return res.status(400).json({ message: 'Invalid client_id provided' });
+    }
+
+    // 2. Fetch existing case numbers for this client
+    const existing = await db.caseRecords.findMany({
+      client_id: req.body.client_id,
+      is_temporary: false,
+      is_deleted: false,
+    });
+    const existing_case_numbers = existing.map((c) => c.case_number);
+
+    // 3. Generate the correct case number using client_code
+    const case_number = generateCaseNumber(
+      client.client_code,
+      existing_case_numbers
+    );
+
+    // 4. Create the case
     const record = await db.caseRecords.createCaseRecord({
       ...req.body,
       case_number,
@@ -40,7 +60,7 @@ export const createCaseRecord = async (req, res) => {
 
     res.status(201).json(record);
   } catch (err) {
-    console.error('🔥 Error creating case record:', err);
+    console.error('Error creating case record:', err);
     res
       .status(500)
       .json({ message: 'Failed to create case record', error: err.message });
