@@ -146,12 +146,7 @@ export const getTenantsForUser = async (user) => {
 
 // Activity Log filtering
 export const getActivityLogsForUser = async (user) => {
-  console.log('getActivityLogsForUser called for user:', user);
   const allLogs = await db.activityLogs.getAllActivityLogs();
-  console.log('Fetched all logs:', allLogs.length);
-  console.log('User role:', user.role);
-  console.log('User ID:', user._id);
-  console.log('User client_id:', user.client_id);
 
   if (user.role === 'admin') return allLogs;
 
@@ -254,9 +249,6 @@ export const getActivityLogsForUser = async (user) => {
         (log.entity_type === 'invoice' && invoiceIdSet.has(id))
       );
     });
-
-    console.log('Filtered Logs Count:', filteredLogs.length);
-    console.log('Filtered Logs:', filteredLogs);
 
     return filteredLogs;
   }
