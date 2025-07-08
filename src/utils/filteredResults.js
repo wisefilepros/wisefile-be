@@ -165,6 +165,7 @@ export const getActivityLogsForUser = async (user) => {
   }
 
   if (user.role === 'client') {
+    console.log(clientId)
     const clientId =
       typeof user.client_id === 'object' ? user.client_id?._id : user.client_id;
 
