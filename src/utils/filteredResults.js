@@ -233,6 +233,15 @@ export const getActivityLogsForUser = async (user) => {
       })
       .map((i) => i._id);
 
+    console.log('All Results:', {
+      allUsers,
+      allCases,
+      allProps,
+      allTenants,
+      allDocs,
+      allInvoices,
+    });
+
     console.log('User IDs:', userIds);
     console.log('Case IDs:', caseIds);
     console.log('Property IDs:', propIds);
