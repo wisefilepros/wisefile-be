@@ -15,7 +15,6 @@ export const getAllCaseRecords = async (req, res) => {
 export const getCaseDetail = async (req, res) => {
   try {
     const record = await db.caseRecords.getCaseDetail(req.params.id);
-    console.log('Fetched case detail:', record);
     if (!record) return res.status(404).json({ message: 'Case not found' });
     res.status(200).json(record);
   } catch (err) {
