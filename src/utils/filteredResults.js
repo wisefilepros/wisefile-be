@@ -152,7 +152,7 @@ export const getActivityLogsForUser = async (user) => {
   console.log('User role:', user.role);
   console.log('User ID:', user._id);
   console.log('User client_id:', user.client_id);
-  console.log(allLogs)
+
   if (user.role === 'admin') return allLogs;
 
   if (user.role === 'operations') {
@@ -233,12 +233,24 @@ export const getActivityLogsForUser = async (user) => {
       })
       .map((i) => i._id);
 
-      console.log('User IDs:', userIds);
-      console.log('Case IDs:', caseIds);
-      console.log('Property IDs:', propIds);
-      console.log('Tenant IDs:', tenantIds);
-      console.log('Document IDs:', docIds);
-      console.log('Invoice IDs:', invoiceIds);
+    console.log('User IDs:', userIds);
+    console.log('Case IDs:', caseIds);
+    console.log('Property IDs:', propIds);
+    console.log('Tenant IDs:', tenantIds);
+    console.log('Document IDs:', docIds);
+    console.log('Invoice IDs:', invoiceIds);
+    let filteredLogs = allLogs.filter(
+      (log) =>
+        (log.entity_type === 'user' && userIds.includes(log.entity_id)) ||
+        (log.entity_type === 'caserecord' && caseIds.includes(log.entity_id)) ||
+        (log.entity_type === 'property' && propIds.includes(log.entity_id)) ||
+        (log.entity_type === 'tenant' && tenantIds.includes(log.entity_id)) ||
+        (log.entity_type === 'document' && docIds.includes(log.entity_id)) ||
+        (log.entity_type === 'invoice' && invoiceIds.includes(log.entity_id))
+    );
+
+    console.log('Filtered Logs Count:', filteredLogs.length);
+    console.log('Filtered Logs:', filteredLogs);
 
     return allLogs.filter(
       (log) =>
