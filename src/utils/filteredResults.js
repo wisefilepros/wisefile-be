@@ -152,7 +152,7 @@ export const getActivityLogsForUser = async (user) => {
   console.log('User role:', user.role);
   console.log('User ID:', user._id);
   console.log('User client_id:', user.client_id);
-  console.log(allLogs);
+  console.log(allLogs)
   if (user.role === 'admin') return allLogs;
 
   if (user.role === 'operations') {
@@ -232,6 +232,13 @@ export const getActivityLogsForUser = async (user) => {
         return String(iClient._id) === String(clientId);
       })
       .map((i) => i._id);
+
+      console.log('User IDs:', userIds);
+      console.log('Case IDs:', caseIds);
+      console.log('Property IDs:', propIds);
+      console.log('Tenant IDs:', tenantIds);
+      console.log('Document IDs:', docIds);
+      console.log('Invoice IDs:', invoiceIds);
 
     return allLogs.filter(
       (log) =>
