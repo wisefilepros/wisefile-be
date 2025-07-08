@@ -233,22 +233,16 @@ export const getActivityLogsForUser = async (user) => {
       })
       .map((i) => i._id);
 
-    console.log('All Results:', {
-      allUsers,
-      allCases,
-      allProps,
-      allTenants,
-      allDocs,
-      allInvoices,
-    });
-
+    console.log(('All Logs Count:', allLogs.length));
+    console.log(('All Logs', allLogs));
     console.log('User IDs:', userIds);
     console.log('Case IDs:', caseIds);
     console.log('Property IDs:', propIds);
     console.log('Tenant IDs:', tenantIds);
     console.log('Document IDs:', docIds);
     console.log('Invoice IDs:', invoiceIds);
-    let filteredLogs = allLogs.filter(
+    // filter allLogs based on the collected IDs
+    const filteredLogs = allLogs.filter(
       (log) =>
         (log.entity_type === 'user' && userIds.includes(log.entity_id)) ||
         (log.entity_type === 'caserecord' && caseIds.includes(log.entity_id)) ||
