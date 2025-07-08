@@ -232,7 +232,7 @@ export const getActivityLogsForUser = async (user) => {
         return String(iClient._id) === String(clientId);
       })
       .map((i) => i._id);
-      
+
     // filter allLogs based on the collected IDs
     const toIdSet = (ids) => new Set(ids.map(String));
 
@@ -258,16 +258,7 @@ export const getActivityLogsForUser = async (user) => {
     console.log('Filtered Logs Count:', filteredLogs.length);
     console.log('Filtered Logs:', filteredLogs);
 
-    return allLogs.filter(
-      (log) =>
-        (log.entity_type === 'user' && userIds.includes(log.entity_id)) ||
-        (log.entity_type === 'caserecord' && caseIds.includes(log.entity_id)) ||
-        (log.entity_type === 'property' && propIds.includes(log.entity_id)) ||
-        (log.entity_type === 'tenant' && tenantIds.includes(log.entity_id)) ||
-        (log.entity_type === 'document' && docIds.includes(log.entity_id)) ||
-        (log.entity_type === 'invoice' && invoiceIds.includes(log.entity_id))
-    );
+    return filteredLogs;
   }
-
   return [];
 };
