@@ -297,6 +297,17 @@ async function getMessagesByQuery(caseId) {
     .lean();
 }
 
+async function getMessagesForCase(caseId) {
+  return Message.find({
+    case_id: caseId,
+    visible_to_users: { $ne: false },
+  })
+    .populate('sender_id', 'full_name')
+    .populate('recipient_ids', 'full_name')
+    .populate('read_by', 'full_name')
+    .lean();
+}
+
 async function getAllMessages() {
   return Message.find()
     .populate('sender_id', 'full_name')
@@ -518,6 +529,7 @@ export const messages = {
   createMessage,
   getMessageById,
   getMessagesByQuery,
+  getMessagesForCase,
   getAllMessages,
   updateMessage,
   markMessageAsRead,
