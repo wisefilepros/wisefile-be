@@ -232,25 +232,28 @@ export const getActivityLogsForUser = async (user) => {
         return String(iClient._id) === String(clientId);
       })
       .map((i) => i._id);
-
-    console.log(('All Logs Count:', allLogs.length));
-    console.log(('All Logs', allLogs));
-    console.log('User IDs:', userIds);
-    console.log('Case IDs:', caseIds);
-    console.log('Property IDs:', propIds);
-    console.log('Tenant IDs:', tenantIds);
-    console.log('Document IDs:', docIds);
-    console.log('Invoice IDs:', invoiceIds);
+      
     // filter allLogs based on the collected IDs
-    const filteredLogs = allLogs.filter(
-      (log) =>
-        (log.entity_type === 'user' && userIds.includes(log.entity_id)) ||
-        (log.entity_type === 'caserecord' && caseIds.includes(log.entity_id)) ||
-        (log.entity_type === 'property' && propIds.includes(log.entity_id)) ||
-        (log.entity_type === 'tenant' && tenantIds.includes(log.entity_id)) ||
-        (log.entity_type === 'document' && docIds.includes(log.entity_id)) ||
-        (log.entity_type === 'invoice' && invoiceIds.includes(log.entity_id))
-    );
+    const toIdSet = (ids) => new Set(ids.map(String));
+
+    const userIdSet = toIdSet(userIds);
+    const caseIdSet = toIdSet(caseIds);
+    const propIdSet = toIdSet(propIds);
+    const tenantIdSet = toIdSet(tenantIds);
+    const docIdSet = toIdSet(docIds);
+    const invoiceIdSet = toIdSet(invoiceIds);
+
+    const filteredLogs = allLogs.filter((log) => {
+      const id = String(log.entity_id);
+      return (
+        (log.entity_type === 'user' && userIdSet.has(id)) ||
+        (log.entity_type === 'caserecord' && caseIdSet.has(id)) ||
+        (log.entity_type === 'property' && propIdSet.has(id)) ||
+        (log.entity_type === 'tenant' && tenantIdSet.has(id)) ||
+        (log.entity_type === 'document' && docIdSet.has(id)) ||
+        (log.entity_type === 'invoice' && invoiceIdSet.has(id))
+      );
+    });
 
     console.log('Filtered Logs Count:', filteredLogs.length);
     console.log('Filtered Logs:', filteredLogs);
